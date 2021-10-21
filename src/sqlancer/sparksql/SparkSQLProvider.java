@@ -23,7 +23,7 @@ public class SparkSQLProvider extends SQLProviderAdapter<sqlancer.sparksql.Spark
     // TODO: implement
     public enum Action implements AbstractAction<SparkSQLGlobalState> {
 
-        INSERT(SparkSQLInsertGenerator::getQuery), //
+        INSERT(SparkSQLInsertGenerator::insert), //
         CREATE_TABLE((g) -> {
             // TODO refactor
             String tableName = DBMSCommon.createTableName(g.getSchema().getDatabaseTables().size());
