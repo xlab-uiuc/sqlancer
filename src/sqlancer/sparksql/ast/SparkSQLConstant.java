@@ -166,9 +166,9 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
 
     public static class SparkSQLIntConstant extends SparkSQLConstant {
 
-        private final int value;
+        private final long value;
 
-        public SparkSQLIntConstant(int value) {
+        public SparkSQLIntConstant(long value) {
             this.value = value;
         }
 
@@ -414,8 +414,8 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
 
         private final BigDecimal value;
 
-        public SparkSQLDecimalConstant(String value) {
-            this.value = new BigDecimal(value);
+        public SparkSQLDecimalConstant(BigDecimal value) {
+            this.value = value;
         }
 
         public BigDecimal getValue() {
@@ -962,17 +962,39 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
 
     }
 
-    // TODO: implement constant classes
-
     public abstract boolean equals(SparkSQLConstant rightVal);
 
     // public abstract SparkSQLConstant castAs(CastType type);
 
     // public abstract String castAsString();
 
-    // public static SparkSQLConstant createStringConstant(String string) {
-    //     return new SparkSQLTextConstant(string);
-    // }
+    public static SparkSQLConstant createIntConstant(long val) {
+        return new SparkSQLIntConstant(val);
+    }
+
+    public static SparkSQLConstant createStringConstant(String string) {
+        return new SparkSQLStringConstant(string);
+    }
+
+    public static SparkSQLConstant createBooleanConstant(boolean val) {
+        return new SparkSQLBooleanConstant(val);
+    }
+
+    public static SparkSQLConstant createDecimalConstant(BigDecimal bigDecimal) {
+        return new SparkSQLDecimalConstant(bigDecimal);
+    }
+
+    public static SparkSQLConstant createBinaryConstant(byte[] val) {
+        return new SparkSQLBinaryConstant(val);
+    }
+
+    public static SparkSQLConstant createFloatConstant(float val) {
+        return new SparkSQLFloatConstant(val);
+    }
+
+    public static SparkSQLConstant createDoubleConstant(double val) {
+        return new SparkSQLDoubleConstant(val);
+    }
 
     public String getType() {
         return ((Object) this).getClass().getSimpleName();
