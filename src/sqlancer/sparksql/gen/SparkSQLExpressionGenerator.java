@@ -3,12 +3,12 @@ package sqlancer.sparksql.gen;
 import sqlancer.IgnoreMeException;
 import sqlancer.Randomly;
 import sqlancer.common.gen.ExpressionGenerator;
-import sqlancer.postgres.PostgresSchema;
-import sqlancer.postgres.ast.PostgresBinaryArithmeticOperation;
-import sqlancer.postgres.ast.PostgresCastOperation;
-import sqlancer.postgres.ast.PostgresExpression;
-import sqlancer.postgres.ast.PostgresPrefixOperation;
-import sqlancer.postgres.gen.PostgresExpressionGenerator;
+import sqlancer.postgres.SparkSQLSchema;
+import sqlancer.postgres.ast.SparkSQLBinaryArithmeticOperation;
+import sqlancer.postgres.ast.SparkSQLCastOperation;
+import sqlancer.postgres.ast.SparkSQLExpression;
+import sqlancer.postgres.ast.SparkSQLPrefixOperation;
+import sqlancer.postgres.gen.SparkSQLExpressionGenerator;
 import sqlancer.sparksql.SparkSQLProvider.SparkSQLGlobalState;
 import sqlancer.sparksql.SparkSQLSchema;
 import sqlancer.sparksql.SparkSQLSchema.SparkSQLDataType;
@@ -26,7 +26,7 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
     private final SparkSQLGlobalState state;
     private final Randomly r;
     private final int maxDepth;
-    private SparkSQLRowValue rw;
+//    private SparkSQLRowValue rw;
     private List<SparkSQLColumn> columns;
 
     public SparkSQLExpressionGenerator(SparkSQLGlobalState state) {
@@ -44,13 +44,11 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
         return this;
     }
 
-    public SparkSQLExpressionGenerator setRowValue(SparkSQLSchema.SparkSQLRowValue rw) {
-        this.rw = rw;
-        return this;
-    }
+//    public SparkSQLExpressionGenerator setRowValue(SparkSQLSchema.SparkSQLRowValue rw) {
+//        this.rw = rw;
+//        return this;
+//    }
 
-    // TODO: implement
-    @Override
     public SparkSQLExpression generateExpression(int depth) {
         return generateExpression(depth, SparkSQLDataType.getRandomType());
     }
@@ -66,6 +64,11 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
             dataType = SparkSQLDataType.INT;
         }
         return generateExpressionInternal(depth, dataType);
+    }
+
+    public static SparkSQLExpression generateExpression(SparkSQLGlobalState globalState, List<SparkSQLColumn> columns,
+                                                        SparkSQLDataType type) {
+        return new SparkSQLExpressionGenerator(globalState).setColumns(columns).generateExpression(0, type);
     }
 
     public static SparkSQLExpression generateExpression(SparkSQLGlobalState globalState, List<SparkSQLColumn> columns) {
@@ -98,7 +101,7 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
         // TODO: for built-in functions
         // else {
         //      if (Randomly.getBoolean()) {
-//                    return new PostgresCastOperation(generateExpression(depth + 1), getCompoundDataType(dataType));
+//                    return new SparkSQLCastOperation(generateExpression(depth + 1), getCompoundDataType(dataType));
 //                } else {
 //                    return generateFunctionWithUnknownResult(depth, dataType);
 //                }
@@ -133,16 +136,6 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
     }
 
     // TODO: implement
-    private SparkSQLExpression getExists() {
-        return null;
-    }
-
-    // TODO: implement
-    private SparkSQLExpression getComputableFunction(int depth) {
-        return null;
-    }
-
-    // TODO: implement
     private enum ConstantType {
         INT, NULL, STRING, DOUBLE;
     }
@@ -150,6 +143,10 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
     private enum IntExpression {
         UNARY_OPERATION, CAST, BINARY_ARITHMETIC_EXPRESSION
         // TODO: add built-in function
+    }
+
+    private SparkSQLExpression generateBooleanExpression(int depth) {
+        
     }
 
     private SparkSQLExpression generateIntExpression(int depth) {
@@ -161,12 +158,12 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
             case UNARY_OPERATION:
                 SparkSQLExpression intExpression = generateExpression(depth + 1, SparkSQLDataType.INT);
                 return new SparkSQLPrefixOperation(intExpression,
-                        Randomly.getBoolean() ? PostgresPrefixOperation.PrefixOperator.UNARY_PLUS : PostgresPrefixOperation.PrefixOperator.UNARY_MINUS);
+                        Randomly.getBoolean() ? SparkSQLPrefixOperation.PrefixOperator.UNARY_PLUS : SparkSQLPrefixOperation.PrefixOperator.UNARY_MINUS);
             //case FUNCTION:
-            //    return generateFunction(depth + 1, PostgresSchema.PostgresDataType.INT);
+            //    return generateFunction(depth + 1, SparkSQLSchema.SparkSQLDataType.INT);
             case BINARY_ARITHMETIC_EXPRESSION:
                 return new SparkSQLBinaryArithmeticOperation(generateExpression(depth + 1, SparkSQLDataType.INT),
-                        generateExpression(depth + 1, SparkSQLDataType.INT), PostgresBinaryArithmeticOperation.PostgresBinaryOperator.getRandom());
+                        generateExpression(depth + 1, SparkSQLDataType.INT), SparkSQLBinaryArithmeticOperation.SparkSQLBinaryOperator.getRandom());
             default:
                 throw new AssertionError();
         }
@@ -178,7 +175,7 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
         }
         switch (type) {
             case INT:
-                // TODO: why does Postgres have createTextConstant here?
+                // TODO: why does SparkSQL have createTextConstant here?
                 return SparkSQLConstant.createIntConstant(r.getInteger());
             case BOOLEAN:
                 return SparkSQLConstant.createBooleanConstant(Randomly.getBoolean());
@@ -204,13 +201,6 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
         SparkSQLColumn fromList = Randomly.fromList(columns);
         SparkSQLConstant value = rw == null ? null : rw.getValues().get(fromList);
         return SparkSQLColumnValue.create(fromList, value);
-    }
-
-    // TODO: determine whether to implement
-    @Override
-    protected SparkSQLExpression generateColumn() {
-        SparkSQLColumn c = Randomly.fromList(columns);
-        return null;
     }
 
     final List<SparkSQLColumn> filterColumns(SparkSQLDataType type) {
