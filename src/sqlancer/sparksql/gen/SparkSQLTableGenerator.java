@@ -9,6 +9,7 @@ import sqlancer.common.query.SQLQueryAdapter;
 import sqlancer.sparksql.SparkSQLSchema;
 import sqlancer.sparksql.gen.SparkSQLExpressionGenerator;
 import sqlancer.sparksql.gen.SparkSQLTableGenerator;
+import sqlancer.sparksql.SparkSQLSchema.SparkSQLDataType;
 import sqlancer.sparksql.SparkSQLProvider.SparkSQLGlobalState;
 import sqlancer.sparksql.SparkSQLSchema.SparkSQLColumn;
 import sqlancer.sparksql.ast.SparkSQLExpression;
@@ -23,18 +24,18 @@ import java.util.stream.Collectors;
 public class SparkSQLTableGenerator {
     private final StringBuilder sb = new StringBuilder();
     private final String tableName;
-    private final Randomly r;
     private int columnId;
-    private boolean tableHasNullableColumn;
     private final List<String> columns = new ArrayList<>();
     private final SparkSQLSchema schema;
     private final SparkSQLGlobalState globalState;
     private final List<SparkSQLSchema.SparkSQLColumn> columnsToBeAdded = new ArrayList<>();
+
     public SparkSQLTableGenerator(SparkSQLGlobalState globalState, String tableName) {
         this.tableName = tableName;
-        this.r = globalState.getRandomly();
         this.schema = globalState.getSchema();
         this.globalState = globalState;
+        // this.table
+        // TODO: add errors
     }
 
     public static SQLQueryAdapter generate(SparkSQLGlobalState globalState, String tableName) {
@@ -58,21 +59,24 @@ public class SparkSQLTableGenerator {
         sb.append(" ");
         sb.append(tableName);
         if (Randomly.getBoolean() && !schema.getDatabaseTables().isEmpty()) {
-            sb.append(" LIKE ");
-            sb.append(schema.getRandomTable().getName());
-            return new SQLQueryAdapter(sb.toString(), true);
+            createLike();
         } else {
-            sb.append("(");
-            for (int i = 0; i < 1 + Randomly.smallNumber(); i++) {
-                if (i != 0) {
-                    sb.append(", ");
-                }
-                appendColumn();
+            createStandard();
+        }
+        return new SQLQueryAdapter(sb.toString(), errors, true);
+    }
+
+    private void createStandard() {
+        sb.append("(");
+        for (int i = 0; i < 1 + Randomly.smallNumber(); i++) {
+            if (i != 0) {
+                sb.append(", ");
             }
-            sb.append(")");
-            sb.append(" ");
-            appendTableOptions();
-            generatePartitionBy();
+            appendColumn();
+        }
+        sb.append(") ");
+        generatePartitionBy();
+        appendTableOptions();
 //            if ((tableHasNullableColumn || setPrimaryKey) && engine == MySQLSchema.MySQLTable.MySQLEngine.CSV) {
 //                if (true) { // TODO
 //                    // results in an error
@@ -85,8 +89,12 @@ public class SparkSQLTableGenerator {
 //                return new SQLQueryAdapter(sb.toString(), errors, true);
 //            }
 //            addCommonErrors(errors);
-            return new SQLQueryAdapter(sb.toString(), errors, true);
-        }
+
+    }
+
+    private void createLike() {
+        sb.append(" LIKE ");
+        sb.append(schema.getRandomTable().getName());
     }
 
     // TODO: implement
@@ -99,90 +107,23 @@ public class SparkSQLTableGenerator {
         return null;
     }
 
-    // TODO: implement
-    private static List<SparkSQLColumn> getNewColumns() {
-        return null;
-    }
-
     private void appendColumn() {
         String columnName = DBMSCommon.createColumnName(columnId);
         columns.add(columnName);
         sb.append(columnName);
-        appendColumnDefinition();
-        columnId++;
-    }
-
-    private void appendColumnDefinition() {
-        sb.append(" ");
-        SparkSQLSchema.SparkSQLDataType randomType = SparkSQLSchema.SparkSQLDataType.getRandom();
-        boolean isTextType = randomType == SparkSQLSchema.SparkSQLDataType.VARCHAR;
+        // TODO: move nested type generation to DataType
+        //  appendTypeString should only unravel DataType
+        SparkSQLDataType randomType = SparkSQLDataType.getRandomType();
         appendTypeString(randomType);
-        sb.append(" ");
-        boolean isNull = false;
-        boolean columnHasPrimaryKey = false;
-
-        List<MySQLTableGenerator.ColumnOptions> columnOptions = Randomly.subset(MySQLTableGenerator.ColumnOptions.values());
-        if (!columnOptions.contains(MySQLTableGenerator.ColumnOptions.NULL_OR_NOT_NULL)) {
-            tableHasNullableColumn = true;
-        }
-        if (isTextType) {
-            // TODO: restriction due to the limited key length
-            columnOptions.remove(MySQLTableGenerator.ColumnOptions.PRIMARY_KEY);
-            columnOptions.remove(MySQLTableGenerator.ColumnOptions.UNIQUE);
-        }
-        for (MySQLTableGenerator.ColumnOptions o : columnOptions) {
-            sb.append(" ");
-            switch (o) {
-                case NULL_OR_NOT_NULL:
-                    // PRIMARY KEYs cannot be NULL
-                    if (!columnHasPrimaryKey) {
-                        if (Randomly.getBoolean()) {
-                            sb.append("NULL");
-                        }
-                        tableHasNullableColumn = true;
-                        isNull = true;
-                    } else {
-                        sb.append("NOT NULL");
-                    }
-                    break;
-                case UNIQUE:
-                    sb.append("UNIQUE");
-                    keysSpecified++;
-                    if (Randomly.getBoolean()) {
-                        sb.append(" KEY");
-                    }
-                    break;
-                case COMMENT:
-                    // TODO: generate randomly
-                    sb.append(String.format("COMMENT '%s' ", "asdf"));
-                    break;
-                case COLUMN_FORMAT:
-                    sb.append("COLUMN_FORMAT ");
-                    sb.append(Randomly.fromOptions("FIXED", "DYNAMIC", "DEFAULT"));
-                    break;
-                case STORAGE:
-                    sb.append("STORAGE ");
-                    sb.append(Randomly.fromOptions("DISK", "MEMORY"));
-                    break;
-                case PRIMARY_KEY:
-                    // PRIMARY KEYs cannot be NULL
-                    if (allowPrimaryKey && !setPrimaryKey && !isNull) {
-                        sb.append("PRIMARY KEY");
-                        setPrimaryKey = true;
-                        columnHasPrimaryKey = true;
-                    }
-                    break;
-                default:
-                    throw new AssertionError();
-            }
-        }
-
+        columnId++;
     }
 
     private enum TableOptions {
         // TBLPROPERTIES, COMMENT seem unnecessary
         // TODO: implement AS when SELECT is done
-        ROW_FORMAT, STORED_AS, LOCATION, AS;
+        // TODO: implement CLUSTERED/SORTED BY if potentially useful
+        ROW_FORMAT, STORED_AS, LOCATION;
+        // AS;
         public static List<SparkSQLTableGenerator.TableOptions> getRandomTableOptions() {
             List<SparkSQLTableGenerator.TableOptions> options;
             // try to ensure that usually, only a few of these options are generated
@@ -213,10 +154,6 @@ public class SparkSQLTableGenerator {
                 case STORED_AS:
                     appendStoredAs();
                     break;
-                case AS:
-                    sb.append("DELAY_KEY_WRITE = ");
-                    sb.append(Randomly.fromOptions(0, 1));
-                    break;
                 default:
                     throw new AssertionError(o);
             }
@@ -245,23 +182,22 @@ public class SparkSQLTableGenerator {
             return;
         }
         sb.append(" PARTITION BY (");
-        int n = 1;
+        int n = Randomly.getBooleanWithSmallProbability()? Randomly.smallNumber() + 1 : 1;
         for (int i = 0; i < n; i++) {
-            //if (i != 0) {
-            //    sb.append(", ");
-            //}
+            if (i != 0) {
+                sb.append(", ");
+            }
             sb.append("(");
             // column does not need to be in the CREATE TABLE
             // TODO: fix when generating expressions
             SparkSQLExpression expr = SparkSQLExpressionGenerator.generateExpression(globalState, columnsToBeAdded);
             sb.append(SparkSQLVisitor.asString(expr)); // x INT
             sb.append(")");
-            // TODO: maybe add multiple columns to partition
         }
         sb.append(")");
     }
 
-    private void appendTypeString(SparkSQLSchema.SparkSQLDataType randomType, int maxDepth) {
+    private void appendTypeString(SparkSQLDataType randomType, int maxDepth) {
         switch (randomType) {
             case DECIMAL:
                 sb.append("DECIMAL");
@@ -292,32 +228,32 @@ public class SparkSQLTableGenerator {
                 break;
             case ARRAY:
                 if (maxDepth == 0) {
-                    appendTypeString(SparkSQLSchema.SparkSQLDataType.getRandom(), maxDepth);
+                    appendTypeString(SparkSQLDataType.getRandomType(), maxDepth);
                     break;
                 }
                 sb.append("ARRAY<");
-                appendTypeString(SparkSQLSchema.SparkSQLDataType.getRandom(), maxDepth-1);
+                appendTypeString(SparkSQLDataType.getRandomType(), maxDepth-1);
                 sb.append(">");
                 break;
             case MAP:
                 if (maxDepth == 0) {
-                    appendTypeString(SparkSQLSchema.SparkSQLDataType.getRandom(), maxDepth);
+                    appendTypeString(SparkSQLDataType.getRandomType(), maxDepth);
                     break;
                 }
                 sb.append("MAP<");
-                appendTypeString(SparkSQLSchema.SparkSQLDataType.getRandom(), maxDepth-1);
+                appendTypeString(SparkSQLDataType.getRandomType(), maxDepth-1);
                 sb.append(", ");
-                appendTypeString(SparkSQLSchema.SparkSQLDataType.getRandom(), maxDepth-1);
+                appendTypeString(SparkSQLDataType.getRandomType(), maxDepth-1);
                 sb.append(">");
                 break;
             case STRUCT:
                 if (maxDepth == 0) {
-                    appendTypeString(SparkSQLSchema.SparkSQLDataType.getRandom(), maxDepth);
+                    appendTypeString(SparkSQLDataType.getRandomType(), maxDepth);
                     break;
                 }
                 sb.append("STRUCT<");
                 // TODO: complete when generating expressions
-                appendTypeString(SparkSQLSchema.SparkSQLDataType.getRandom(), maxDepth-1);
+                appendTypeString(SparkSQLDataType.getRandomType(), maxDepth-1);
                 sb.append(">");
                 break;
             case BINARY:

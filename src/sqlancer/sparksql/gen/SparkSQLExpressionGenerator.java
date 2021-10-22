@@ -68,6 +68,10 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
         return generateExpressionInternal(depth, dataType);
     }
 
+    public static SparkSQLExpression generateExpression(SparkSQLGlobalState globalState, List<SparkSQLColumn> columns) {
+        return new SparkSQLExpressionGenerator(globalState).setColumns(columns).generateExpression(0);
+    }
+
     public SparkSQLExpression generateExpression(SparkSQLDataType dataType) {
         return generateExpression(0, dataType);
     }
@@ -109,14 +113,18 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
                 case DECIMAL:
                 case FLOAT:
                 case DOUBLE:
+                case DATETIME:
                     return generateConstant(r, dataType);
                 case STRING:
-
+                    return generateStringExpression(depth);
                 case BINARY:
+                    return generateBinaryExpression(depth);
                 case MAP:
+                    return generateMapExpression(depth);
                 case ARRAY:
+                    return generateArrayExpression(depth);
                 case STRUCT:
-                case DATETIME:
+                    return generateStructExpression(depth);
 
                 default:
                     throw new AssertionError(dataType);
@@ -164,9 +172,7 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
         }
     }
 
-    // TODO: implement
-    @Override
-    public SparkSQLExpression generateConstant(Randomly r, SparkSQLDataType type) {
+    public static SparkSQLExpression generateConstant(Randomly r, SparkSQLDataType type) {
         if (Randomly.getBooleanWithRatherLowProbability()) {
             return SparkSQLConstant.createNullConstant();
         }
@@ -177,7 +183,7 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
             case BOOLEAN:
                 return SparkSQLConstant.createBooleanConstant(Randomly.getBoolean());
             case STRING:
-                return SparkSQLConstant.createTextConstant(r.getString());
+                return SparkSQLConstant.createStringConstant(r.getString());
             case DECIMAL:
                 return SparkSQLConstant.createDecimalConstant(r.getRandomBigDecimal());
             case FLOAT:
@@ -185,7 +191,9 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
             case DOUBLE:
                 return SparkSQLConstant.createDoubleConstant(r.getDouble());
             case BINARY:
-                return SparkSQLConstant.createBitConstant(r.getInteger());
+                return SparkSQLConstant.createBinaryConstant(r.getInteger());
+            case DATETIME:
+                return SparkSQLConstant.createDatetimeConstant(r.getDatetime());
             default:
                 throw new AssertionError(type);
         }

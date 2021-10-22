@@ -26,11 +26,6 @@ public class SparkSQLInsertGenerator {
     public SparkSQLInsertGenerator() {
     }
 
-    // TODO: implement
-    private SQLQueryAdapter generate() {
-        return null;
-    }
-
     public static SQLQueryAdapter insert(SparkSQLGlobalState globalState) {
         SparkSQLTable table = globalState.getSchema().getRandomTable();
         ExpectedErrors errors = new ExpectedErrors();
@@ -44,11 +39,11 @@ public class SparkSQLInsertGenerator {
             return new SQLQueryAdapter(sb.toString(), errors);
         }
         // TODO: FROM SELECT pattern
-        if (Randomly.getBooleanWithRatherLowProbability()) {
-            sb.append("PARTITION (");
-
-            sb.append(")");
-        }
+        // TODO: implement PARTITION
+        // if (Randomly.getBooleanWithRatherLowProbability()) {
+        //     sb.append("PARTITION (");
+        //     sb.append(")");
+        // }
         sb.append(" VALUES ");
         int nrRows;
         if (Randomly.getBoolean()) {
@@ -56,7 +51,6 @@ public class SparkSQLInsertGenerator {
         } else {
             nrRows = 1 + Randomly.smallNumber();
         }
-        SparkSQLExpressionGenerator gen = new SparkSQLExpressionGenerator(globalState);
         for (int row = 0; row < nrRows; row++) {
             if (row != 0) {
                 sb.append(", ");
