@@ -45,17 +45,23 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
 
         @Override
         public SparkSQLConstant isEquals(SparkSQLConstant rightVal) {
-            return SparkSQLConstant.createNullConstant();
+            if (rightVal.isNull()) {
+                return SparkSQLConstant.createNullConstant();
+            } else if (rightVal.isNaN()) {
+                return SparkSQLConstant.createTrue();
+            } else {
+                throw new AssertionError(rightVal);
+            }
         }
 
         @Override
         protected SparkSQLConstant isLessThan(SparkSQLConstant rightVal) {
-            return SparkSQLConstant.createNullConstant();
+            return SparkSQLConstant.createFalse();
         }
 
         @Override
         public SparkSQLConstant cast(SparkSQLDataType type) {
-            return SparkSQLConstant.createNullConstant();
+            return SparkSQLConstant.createNaNConstant();
         }
 
         @Override
@@ -138,6 +144,8 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
         public SparkSQLConstant isEquals(SparkSQLConstant rightVal) {
             if (rightVal.isNull()) {
                 return SparkSQLConstant.createNullConstant();
+            } else if (rightVal.isNaN()) {
+                return SparkSQLConstant.createFalse();
             } else if (rightVal.isBoolean()) {
                 return cast(SparkSQLDataType.BOOLEAN).isEquals(rightVal);
             } else if (rightVal.isByte()) {
@@ -169,6 +177,8 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
         protected SparkSQLConstant isLessThan(SparkSQLConstant rightVal) {
             if (rightVal.isNull()) {
                 return SparkSQLConstant.createNullConstant();
+            } else if (rightVal.isNaN()) {
+                return SparkSQLConstant.createTrue();
             } else if (rightVal.isByte()) {
                 return SparkSQLConstant.createBooleanConstant(val < rightVal.asByte());
             } else if (rightVal.isShort()) {
@@ -266,6 +276,8 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
         public SparkSQLConstant isEquals(SparkSQLConstant rightVal) {
             if (rightVal.isNull()) {
                 return SparkSQLConstant.createNullConstant();
+            } else if (rightVal.isNaN()) {
+                return SparkSQLConstant.createFalse();
             } else if (rightVal.isBoolean()) {
                 return cast(SparkSQLDataType.BOOLEAN).isEquals(rightVal);
             } else if (rightVal.isByte()) {
@@ -297,6 +309,8 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
         protected SparkSQLConstant isLessThan(SparkSQLConstant rightVal) {
             if (rightVal.isNull()) {
                 return SparkSQLConstant.createNullConstant();
+            } else if (rightVal.isNaN()) {
+                return SparkSQLConstant.createTrue();
             } else if (rightVal.isByte()) {
                 return SparkSQLConstant.createBooleanConstant(val < rightVal.asByte());
             } else if (rightVal.isShort()) {
@@ -362,9 +376,9 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
 
     public static class SparkSQLIntConstant extends SparkSQLConstant {
 
-        private final int val;
+        private final long val;
 
-        public SparkSQLIntConstant(int val) {
+        public SparkSQLIntConstant(long val) {
             this.val = val;
         }
 
@@ -379,7 +393,7 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
         }
 
         @Override
-        public int asInt() {
+        public long asInt() {
             return val;
         }
 
@@ -392,6 +406,8 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
         public SparkSQLConstant isEquals(SparkSQLConstant rightVal) {
             if (rightVal.isNull()) {
                 return SparkSQLConstant.createNullConstant();
+            } else if (rightVal.isNaN()) {
+                return SparkSQLConstant.createFalse();
             } else if (rightVal.isBoolean()) {
                 return cast(SparkSQLDataType.BOOLEAN).isEquals(rightVal);
             } else if (rightVal.isByte()) {
@@ -423,6 +439,8 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
         protected SparkSQLConstant isLessThan(SparkSQLConstant rightVal) {
             if (rightVal.isNull()) {
                 return SparkSQLConstant.createNullConstant();
+            } else if (rightVal.isNaN()) {
+                return SparkSQLConstant.createTrue();
             } else if (rightVal.isByte()) {
                 return SparkSQLConstant.createBooleanConstant(val < rightVal.asByte());
             } else if (rightVal.isShort()) {
@@ -516,6 +534,8 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
         public SparkSQLConstant isEquals(SparkSQLConstant rightVal) {
             if (rightVal.isNull()) {
                 return SparkSQLConstant.createNullConstant();
+            } else if (rightVal.isNaN()) {
+                return SparkSQLConstant.createFalse();
             } else if (rightVal.isBoolean()) {
                 return cast(SparkSQLDataType.BOOLEAN).isEquals(rightVal);
             } else if (rightVal.isByte()) {
@@ -547,6 +567,8 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
         protected SparkSQLConstant isLessThan(SparkSQLConstant rightVal) {
             if (rightVal.isNull()) {
                 return SparkSQLConstant.createNullConstant();
+            } else if (rightVal.isNaN()) {
+                return SparkSQLConstant.createTrue();
             } else if (rightVal.isByte()) {
                 return SparkSQLConstant.createBooleanConstant(val < rightVal.asByte());
             } else if (rightVal.isShort()) {
@@ -642,6 +664,8 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
         public SparkSQLConstant isEquals(SparkSQLConstant rightVal) {
             if (rightVal.isNull()) {
                 return SparkSQLConstant.createNullConstant();
+            } else if (rightVal.isNaN()) {
+                return SparkSQLConstant.createFalse();
             } else if (rightVal.isBoolean()) {
                 return cast(SparkSQLDataType.BOOLEAN).isEquals(rightVal);
             } else if (rightVal.isByte()) {
@@ -673,6 +697,8 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
         protected SparkSQLConstant isLessThan(SparkSQLConstant rightVal) {
             if (rightVal.isNull()) {
                 return SparkSQLConstant.createNullConstant();
+            } else if (rightVal.isNaN()) {
+                return SparkSQLConstant.createTrue();
             } else if (rightVal.isByte()) {
                 return SparkSQLConstant.createBooleanConstant(val < rightVal.asByte());
             } else if (rightVal.isShort()) {
@@ -766,6 +792,8 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
         public SparkSQLConstant isEquals(SparkSQLConstant rightVal) {
             if (rightVal.isNull()) {
                 return SparkSQLConstant.createNullConstant();
+            } else if (rightVal.isNaN()) {
+                return SparkSQLConstant.createFalse();
             } else if (rightVal.isBoolean()) {
                 return cast(SparkSQLDataType.BOOLEAN).isEquals(rightVal);
             } else if (rightVal.isByte()) {
@@ -797,6 +825,8 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
         protected SparkSQLConstant isLessThan(SparkSQLConstant rightVal) {
             if (rightVal.isNull()) {
                 return SparkSQLConstant.createNullConstant();
+            } else if (rightVal.isNaN()) {
+                return SparkSQLConstant.createTrue();
             } else if (rightVal.isByte()) {
                 return SparkSQLConstant.createBooleanConstant(val < rightVal.asByte());
             } else if (rightVal.isShort()) {
@@ -884,6 +914,8 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
         public SparkSQLConstant isEquals(SparkSQLConstant rightVal) {
             if (rightVal.isNull()) {
                 return SparkSQLConstant.createNullConstant();
+            } else if (rightVal.isNaN()) {
+                return SparkSQLConstant.createFalse();
             } else if (rightVal.isBoolean()) {
                 return cast(SparkSQLDataType.BOOLEAN).isEquals(rightVal);
             } else if (rightVal.isByte()) {
@@ -915,6 +947,8 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
         protected SparkSQLConstant isLessThan(SparkSQLConstant rightVal) {
             if (rightVal.isNull()) {
                 return SparkSQLConstant.createNullConstant();
+            } else if (rightVal.isNaN()) {
+                return SparkSQLConstant.createTrue();
             } else if (rightVal.isByte()) {
                 return SparkSQLConstant.createBooleanConstant(val.compareTo(new BigDecimal(rightVal.asByte())) == -1);
             } else if (rightVal.isShort()) {
@@ -1531,19 +1565,15 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
 
     public static class SparkSQLBinaryConstant extends SparkSQLConstant {
 
-        private final Byte[] val;
+        private final long val;
 
-        public SparkSQLBinaryConstant(Byte[] val) {
-            this.val = val.clone();
+        public SparkSQLBinaryConstant(long val) {
+            this.val = val;
         }
 
         @Override
         public String getTextRepresentation() {
-            String str = "";
-            for (int i = 0; i < val.length; i ++) {
-                str += String.format("B'%s'", val[i]);
-            }
-            return str;
+            return String.format("B'%s'", Long.toBinaryString(val));
         }
 
         @Override
@@ -1552,18 +1582,56 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
         }
 
         @Override
+        public long asBinary() {
+            return val;
+        }
+
+        @Override
+        public boolean isBinary() {
+            return true;
+        }
+
+        @Override
         public String getUnquotedTextRepresentation() {
-            return null;
+            return Long.toBinaryString(val);
         }
 
         @Override
         public SparkSQLConstant isEquals(SparkSQLConstant rightVal) {
-            return null;
+            if (rightVal.isNull()) {
+                return SparkSQLConstant.createNullConstant();
+            } else if (rightVal.isBinary()) { 
+                return SparkSQLConstant.createBooleanConstant(val == rightVal.asBinary());
+            } else if (rightVal.isString()) {
+                return SparkSQLConstant
+                        .createBooleanConstant(getUnquotedTextRepresentation().equals(rightVal.asString()));
+            } else if (rightVal.isVarChar()) {
+                return SparkSQLConstant
+                        .createBooleanConstant(getUnquotedTextRepresentation().equals(rightVal.asVarChar()));
+            } else if (rightVal.isChar()) {
+                return SparkSQLConstant
+                        .createBooleanConstant(getUnquotedTextRepresentation().equals(rightVal.asChar()));
+            } else {
+                throw new AssertionError(rightVal);
+            }
         }
 
         @Override
         protected SparkSQLConstant isLessThan(SparkSQLConstant rightVal) {
-            return null;
+            if (rightVal.isNull()) {
+                return SparkSQLConstant.createNullConstant();
+            } else if (rightVal.isString()) {
+                return SparkSQLConstant
+                        .createBooleanConstant(getUnquotedTextRepresentation().compareTo(rightVal.asString()) < 0);
+            } else if (rightVal.isVarChar()) {
+                return SparkSQLConstant
+                        .createBooleanConstant(getUnquotedTextRepresentation().compareTo(rightVal.asString()) < 0);
+            } else if (rightVal.isChar()) {
+                return SparkSQLConstant
+                        .createBooleanConstant(getUnquotedTextRepresentation().compareTo(rightVal.asString()) < 0);
+            } else {
+                throw new AssertionError(rightVal);
+            }
         }
 
         @Override
@@ -2220,7 +2288,7 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
         return new SparkSQLShortConstant(val);
     }
 
-    public static SparkSQLConstant createIntConstant(int val) {
+    public static SparkSQLConstant createIntConstant(long val) {
         return new SparkSQLIntConstant(val);
     }
 
@@ -2252,7 +2320,7 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
         return new SparkSQLCharConstant(string, length);
     }
 
-    public static SparkSQLConstant createBinaryConstant(Byte[] val) {
+    public static SparkSQLConstant createBinaryConstant(long val) {
         return new SparkSQLBinaryConstant(val);
     }
 
@@ -2401,7 +2469,7 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
         throw new UnsupportedOperationException(this.toString());
     }
 
-    public int asInt() {
+    public long asInt() {
         throw new UnsupportedOperationException(this.toString());
     }
 
@@ -2433,7 +2501,7 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
         throw new UnsupportedOperationException(this.toString());
     }
 
-    public Byte[] asBinary() {
+    public long asBinary() {
         throw new UnsupportedOperationException(this.toString());
     }
 
