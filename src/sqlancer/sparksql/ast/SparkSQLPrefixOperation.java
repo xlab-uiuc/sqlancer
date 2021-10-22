@@ -25,7 +25,7 @@ public class SparkSQLPrefixOperation implements SparkSQLExpression {
             }
         },
         UNARY_PLUS("+", SparkSQLDataType.INT) {
-
+            // TODO: support other data types if this is not enough
             @Override
             public SparkSQLDataType getExpressionType() {
                 return SparkSQLDataType.INT;
@@ -39,7 +39,7 @@ public class SparkSQLPrefixOperation implements SparkSQLExpression {
 
         },
         UNARY_MINUS("-", SparkSQLDataType.INT) {
-
+            // TODO: support other data types if this is not enough
             @Override
             public SparkSQLDataType getExpressionType() {
                 return SparkSQLDataType.INT;
