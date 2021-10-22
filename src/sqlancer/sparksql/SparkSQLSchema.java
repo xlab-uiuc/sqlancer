@@ -19,7 +19,7 @@ public class SparkSQLSchema extends AbstractSchema<SparkSQLGlobalState, SparkSQL
 
     // TODO: implement random generation of nested types
     public enum SparkSQLDataType {
-        DECIMAL, INT, DOUBLE, FLOAT, DATETIME, STRING, ARRAY, MAP, STRUCT, BINARY, BOOLEAN;
+        NAN, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, DECIMAL, STRING, VARCHAR, CHAR, BINARY, BOOLEAN, TIMESTAMP, DATE, ARRAY, MAP, STRUCT, STRUCT_FIELD;
         public static SparkSQLDataType getRandomType() {
             return Randomly.fromOptions(values());
         }
