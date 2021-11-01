@@ -35,6 +35,7 @@ import sqlancer.mariadb.MariaDBProvider;
 import sqlancer.mongodb.MongoDBProvider;
 import sqlancer.mysql.MySQLProvider;
 import sqlancer.postgres.PostgresProvider;
+import sqlancer.sparksql.SparkSQLProvider;
 import sqlancer.sqlite3.SQLite3Provider;
 import sqlancer.tidb.TiDBProvider;
 
@@ -560,6 +561,7 @@ public final class Main {
         providers.add(new MongoDBProvider());
         providers.add(new CosmosProvider());
         providers.add(new ArangoDBProvider());
+        providers.add(new SparkSQLProvider());
         return providers;
     }
 
