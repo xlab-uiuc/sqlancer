@@ -3,19 +3,24 @@ package sqlancer.sparksql.gen;
 import sqlancer.IgnoreMeException;
 import sqlancer.Randomly;
 import sqlancer.common.gen.ExpressionGenerator;
-import sqlancer.postgres.SparkSQLSchema;
-import sqlancer.postgres.ast.SparkSQLBinaryArithmeticOperation;
-import sqlancer.postgres.ast.SparkSQLCastOperation;
-import sqlancer.postgres.ast.SparkSQLExpression;
-import sqlancer.postgres.ast.SparkSQLPrefixOperation;
-import sqlancer.postgres.gen.SparkSQLExpressionGenerator;
-import sqlancer.sparksql.SparkSQLProvider.SparkSQLGlobalState;
+import sqlancer.sparksql.SparkSQLProvider;
 import sqlancer.sparksql.SparkSQLSchema;
+import sqlancer.sparksql.ast.SparkSQLBinaryComparisonOperation;
+import sqlancer.sparksql.ast.SparkSQLExpression;
+import sqlancer.sparksql.ast.SparkSQLInOperation;
+import sqlancer.sparksql.SparkSQLSchema;
+import sqlancer.sparksql.ast.*;
+import sqlancer.sparksql.ast.SparkSQLBinaryArithmeticOperation;
+import sqlancer.sparksql.ast.SparkSQLCastOperation;
+import sqlancer.sparksql.ast.SparkSQLExpression;
+import sqlancer.sparksql.ast.SparkSQLPrefixOperation;
+import sqlancer.sparksql.SparkSQLProvider.SparkSQLGlobalState;
 import sqlancer.sparksql.SparkSQLSchema.SparkSQLDataType;
 import sqlancer.sparksql.SparkSQLSchema.SparkSQLColumn;
-import sqlancer.sparksql.ast.*;
+import sqlancer.sparksql.SparkSQLSchema.SparkSQLRowValue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,7 +31,7 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
     private final SparkSQLGlobalState state;
     private final Randomly r;
     private final int maxDepth;
-//    private SparkSQLRowValue rw;
+    private SparkSQLRowValue rw;
     private List<SparkSQLColumn> columns;
 
     public SparkSQLExpressionGenerator(SparkSQLGlobalState state) {
@@ -106,7 +111,6 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
 //                    return generateFunctionWithUnknownResult(depth, dataType);
 //                }
 //            }
-        //}
         else {
             switch (dataType) {
                 case BOOLEAN:
@@ -116,37 +120,94 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
                 case DECIMAL:
                 case FLOAT:
                 case DOUBLE:
-                case DATETIME:
-                    return generateConstant(r, dataType);
                 case STRING:
                     return generateStringExpression(depth);
-                case BINARY:
-                    return generateBinaryExpression(depth);
-                case MAP:
-                    return generateMapExpression(depth);
-                case ARRAY:
-                    return generateArrayExpression(depth);
-                case STRUCT:
-                    return generateStructExpression(depth);
-
+//                case BINARY:
+//                    return generateBinaryExpression(depth);
+//                case MAP:
+//                    return generateMapExpression(depth);
+//                case ARRAY:
+//                    return generateArrayExpression(depth);
+//                case STRUCT:
+//                    return generateStructExpression(depth);
                 default:
                     throw new AssertionError(dataType);
             }
         }
     }
 
-    // TODO: implement
-    private enum ConstantType {
-        INT, NULL, STRING, DOUBLE;
+    private enum BooleanExpression {
+        NOT, BINARY_LOGICAL_OPERATOR, BINARY_COMPARISON, CAST, LIKE, BETWEEN, IN_OPERATION
+    }
+
+    private SparkSQLExpression generateBooleanExpression(int depth) {
+        List<SparkSQLExpressionGenerator.BooleanExpression> validOptions = new ArrayList<>(Arrays.asList(SparkSQLExpressionGenerator.BooleanExpression.values()));
+        SparkSQLExpressionGenerator.BooleanExpression option = Randomly.fromList(validOptions);
+        switch (option) {
+            case IN_OPERATION:
+                return inOperation(depth + 1);
+            case NOT:
+                return new SparkSQLPrefixOperation(generateExpression(depth + 1, SparkSQLSchema.SparkSQLDataType.BOOLEAN),
+                        SparkSQLPrefixOperation.PrefixOperator.NOT);
+            case BINARY_LOGICAL_OPERATOR:
+                SparkSQLExpression first = generateExpression(depth + 1, SparkSQLSchema.SparkSQLDataType.BOOLEAN);
+                int nr = Randomly.smallNumber() + 1;
+                for (int i = 0; i < nr; i++) {
+                    first = new SparkSQLBinaryLogicalOperation(first,
+                            generateExpression(depth + 1, SparkSQLSchema.SparkSQLDataType.BOOLEAN), SparkSQLBinaryLogicalOperation.BinaryLogicalOperator.getRandom());
+                }
+                return first;
+            case BINARY_COMPARISON:
+                SparkSQLDataType dataType = getMeaningfulType();
+                return generateComparison(depth, dataType);
+            case CAST:
+                return new SparkSQLCastOperation(generateExpression(depth + 1), SparkSQLDataType.BOOLEAN);
+            case LIKE:
+                return new SparkSQLLikeOperation(generateExpression(depth + 1, SparkSQLDataType.STRING),
+                        generateExpression(depth + 1, SparkSQLDataType.STRING));
+            case BETWEEN:
+                SparkSQLDataType type = getMeaningfulType();
+                return new SparkSQLBetweenOperation(generateExpression(depth + 1, type),
+                        generateExpression(depth + 1, type), generateExpression(depth + 1, type), Randomly.getBoolean());
+            default:
+                throw new AssertionError();
+        }
+    }
+
+    private SparkSQLSchema.SparkSQLDataType getMeaningfulType() {
+        // make it more likely that the expression does not only consist of constant
+        // expressions
+        if (Randomly.getBooleanWithSmallProbability() || columns == null || columns.isEmpty()) {
+            return SparkSQLSchema.SparkSQLDataType.getRandomType();
+        } else {
+            return Randomly.fromList(columns).getType();
+        }
+    }
+
+    private SparkSQLExpression generateComparison(int depth, SparkSQLSchema.SparkSQLDataType dataType) {
+        SparkSQLExpression leftExpr = generateExpression(depth + 1, dataType);
+        SparkSQLExpression rightExpr = generateExpression(depth + 1, dataType);
+        return getComparison(leftExpr, rightExpr);
+    }
+
+    private SparkSQLExpression getComparison(SparkSQLExpression leftExpr, SparkSQLExpression rightExpr) {
+        return new SparkSQLBinaryComparisonOperation(leftExpr, rightExpr,
+                SparkSQLBinaryComparisonOperation.SparkSQLBinaryComparisonOperator.getRandom());
+    }
+
+    private SparkSQLExpression inOperation(int depth) {
+        SparkSQLSchema.SparkSQLDataType type = SparkSQLSchema.SparkSQLDataType.getRandomType();
+        SparkSQLExpression leftExpr = generateExpression(depth + 1, type);
+        List<SparkSQLExpression> rightExpr = new ArrayList<>();
+        for (int i = 0; i < Randomly.smallNumber() + 1; i++) {
+            rightExpr.add(generateExpression(depth + 1, type));
+        }
+        return new SparkSQLInOperation(leftExpr, rightExpr, Randomly.getBoolean());
     }
 
     private enum IntExpression {
         UNARY_OPERATION, CAST, BINARY_ARITHMETIC_EXPRESSION
         // TODO: add built-in function
-    }
-
-    private SparkSQLExpression generateBooleanExpression(int depth) {
-        
     }
 
     private SparkSQLExpression generateIntExpression(int depth) {
@@ -169,6 +230,46 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
         }
     }
 
+    private enum StringExpression {
+        CAST, CONCAT
+    }
+
+    private SparkSQLExpression generateStringExpression(int depth) {
+        StringExpression option;
+        List<StringExpression> validOptions = new ArrayList<>(Arrays.asList(StringExpression.values()));
+        option = Randomly.fromList(validOptions);
+
+        switch (option) {
+            case CAST:
+                return new SparkSQLCastOperation(generateExpression(depth + 1), SparkSQLDataType.STRING);
+            case CONCAT:
+                return generateConcat(depth);
+            default:
+                throw new AssertionError();
+        }
+    }
+    
+    private SparkSQLExpression generateConcat(int depth) {
+        SparkSQLExpression left = generateExpression(depth + 1, SparkSQLDataType.STRING);
+        SparkSQLExpression right = generateExpression(depth + 1);
+        return new SparkSQLConcatOperation(left, right);
+    }
+
+    private enum BinaryExpression {
+        BINARY_OPERATION
+    }
+
+//    private SparkSQLExpression generateBinaryExpression(int depth) {
+//        BinaryExpression option;
+//        option = Randomly.fromOptions(SparkSQLExpressionGenerator.BinaryExpression.values());
+//        if (option == BinaryExpression.BINARY_OPERATION) {
+//            return new SparkSQLBinaryBitOperation(SparkSQLBinaryBitOperation.SparkSQLBinaryBitOperator.getRandom(),
+//                    generateExpression(depth + 1, SparkSQLDataType.BINARY),
+//                    generateExpression(depth + 1, SparkSQLDataType.BINARY));
+//        }
+//        throw new AssertionError();
+//    }
+
     public static SparkSQLExpression generateConstant(Randomly r, SparkSQLDataType type) {
         if (Randomly.getBooleanWithRatherLowProbability()) {
             return SparkSQLConstant.createNullConstant();
@@ -189,8 +290,6 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
                 return SparkSQLConstant.createDoubleConstant(r.getDouble());
             case BINARY:
                 return SparkSQLConstant.createBinaryConstant(r.getInteger());
-            case DATETIME:
-                return SparkSQLConstant.createDatetimeConstant(r.getDatetime());
             default:
                 throw new AssertionError(type);
         }
@@ -216,16 +315,14 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
         return generateExpression(SparkSQLDataType.BOOLEAN);
     }
 
-    // TODO: implement
     @Override
     public SparkSQLExpression negatePredicate(SparkSQLExpression predicate) {
-        return new SparkSQLUnaryPrefixOperation(predicate, SparkSQLUnaryPrefixOperator.NOT);
+        return new SparkSQLPrefixOperation(predicate, SparkSQLPrefixOperation.PrefixOperator.NOT);
     }
 
-    // TODO: implement
     @Override
     public SparkSQLExpression isNull(SparkSQLExpression expr) {
-        return new SparkSQLUnaryPostfixOperation(expr, SparkSQLUnaryPostfixOperation.UnaryPostfixOperator.IS_NULL);
+        return new SparkSQLPostfixOperation(expr, SparkSQLPostfixOperation.PostfixOperator.IS_NULL);
     }
 
 }

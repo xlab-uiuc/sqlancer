@@ -3,15 +3,12 @@ package sqlancer.sparksql.gen;
 import sqlancer.IgnoreMeException;
 import sqlancer.Randomly;
 import sqlancer.common.DBMSCommon;
-import sqlancer.common.ast.newast.Node;
 import sqlancer.common.query.ExpectedErrors;
 import sqlancer.common.query.SQLQueryAdapter;
 import sqlancer.sparksql.SparkSQLSchema;
-import sqlancer.sparksql.gen.SparkSQLExpressionGenerator;
-import sqlancer.sparksql.gen.SparkSQLTableGenerator;
+import sqlancer.sparksql.SparkSQLVisitor;
 import sqlancer.sparksql.SparkSQLSchema.SparkSQLDataType;
 import sqlancer.sparksql.SparkSQLProvider.SparkSQLGlobalState;
-import sqlancer.sparksql.SparkSQLSchema.SparkSQLColumn;
 import sqlancer.sparksql.ast.SparkSQLExpression;
 
 import java.util.ArrayList;
@@ -20,7 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// TODO: can reference MySQLTableGenerator for example on how to generate tables
 public class SparkSQLTableGenerator {
     private final StringBuilder sb = new StringBuilder();
     private final String tableName;
@@ -197,7 +193,7 @@ public class SparkSQLTableGenerator {
         sb.append(")");
     }
 
-    private void appendTypeString(SparkSQLDataType randomType, int maxDepth) {
+    private void appendTypeString(SparkSQLDataType randomType) {
         switch (randomType) {
             case DECIMAL:
                 sb.append("DECIMAL");
@@ -223,39 +219,39 @@ public class SparkSQLTableGenerator {
                 sb.append(Randomly.fromOptions("DOUBLE", "FLOAT"));
                 optionallyAddPrecisionAndScale(sb);
                 break;
-            case DATETIME:
-                sb.append(Randomly.fromOptions("DATE", "TIMESTAMP"));
-                break;
-            case ARRAY:
-                if (maxDepth == 0) {
-                    appendTypeString(SparkSQLDataType.getRandomType(), maxDepth);
-                    break;
-                }
-                sb.append("ARRAY<");
-                appendTypeString(SparkSQLDataType.getRandomType(), maxDepth-1);
-                sb.append(">");
-                break;
-            case MAP:
-                if (maxDepth == 0) {
-                    appendTypeString(SparkSQLDataType.getRandomType(), maxDepth);
-                    break;
-                }
-                sb.append("MAP<");
-                appendTypeString(SparkSQLDataType.getRandomType(), maxDepth-1);
-                sb.append(", ");
-                appendTypeString(SparkSQLDataType.getRandomType(), maxDepth-1);
-                sb.append(">");
-                break;
-            case STRUCT:
-                if (maxDepth == 0) {
-                    appendTypeString(SparkSQLDataType.getRandomType(), maxDepth);
-                    break;
-                }
-                sb.append("STRUCT<");
-                // TODO: complete when generating expressions
-                appendTypeString(SparkSQLDataType.getRandomType(), maxDepth-1);
-                sb.append(">");
-                break;
+//            case DATETIME:
+//                sb.append(Randomly.fromOptions("DATE", "TIMESTAMP"));
+//                break;
+//            case ARRAY:
+//                if (maxDepth == 0) {
+//                    appendTypeString(SparkSQLDataType.getRandomType(), maxDepth);
+//                    break;
+//                }
+//                sb.append("ARRAY<");
+//                appendTypeString(SparkSQLDataType.getRandomType(), maxDepth-1);
+//                sb.append(">");
+//                break;
+//            case MAP:
+//                if (maxDepth == 0) {
+//                    appendTypeString(SparkSQLDataType.getRandomType(), maxDepth);
+//                    break;
+//                }
+//                sb.append("MAP<");
+//                appendTypeString(SparkSQLDataType.getRandomType(), maxDepth-1);
+//                sb.append(", ");
+//                appendTypeString(SparkSQLDataType.getRandomType(), maxDepth-1);
+//                sb.append(">");
+//                break;
+//            case STRUCT:
+//                if (maxDepth == 0) {
+//                    appendTypeString(SparkSQLDataType.getRandomType(), maxDepth);
+//                    break;
+//                }
+//                sb.append("STRUCT<");
+//                // TODO: complete when generating expressions
+//                appendTypeString(SparkSQLDataType.getRandomType(), maxDepth-1);
+//                sb.append(">");
+//                break;
             case BINARY:
                 sb.append("BINARY");
                 break;

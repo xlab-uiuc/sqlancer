@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.spark.sql.Row;
-import org.apache.spark.sql.RowFactory;
+//import org.apache.spark.sql.Row;
+//import org.apache.spark.sql.RowFactory;
 
 import sqlancer.IgnoreMeException;
 import sqlancer.sparksql.SparkSQLSchema.SparkSQLDataType;
@@ -1934,341 +1934,341 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
 
     // Complex types
 
-    public static class SparkSQLArrayConstant  extends SparkSQLConstant {
+//    public static class SparkSQLArrayConstant  extends SparkSQLConstant {
+//
+//        private final List<SparkSQLConstant> array;
+//
+//        public SparkSQLArrayConstant(List<SparkSQLConstant> array, SparkSQLConstant containsNull) {
+//            this.array = new ArrayList<SparkSQLConstant>();
+//            this.array.addAll(array);
+//            if (!containsNull.asBoolean()) {
+//                for (SparkSQLConstant e: array) {
+//                    if (e.isNull()) {
+//                        throw new AssertionError(e);
+//                    }
+//                }
+//            }
+//        }
+//
+//        @Override
+//        public String getTextRepresentation() {
+//            return String.format("%s", array);
+//        }
+//
+//        @Override
+//        public SparkSQLDataType getExpressionType() {
+//            return SparkSQLDataType.ARRAY;
+//        }
+//
+//        @Override
+//        public List<SparkSQLConstant> asArray() {
+//            return array;
+//        }
+//
+//        @Override
+//        public boolean isArray() {
+//            return true;
+//        }
+//
+//        @Override
+//        public SparkSQLConstant isEquals(SparkSQLConstant rightVal) {
+//            if (rightVal.isNull()) {
+//                return SparkSQLConstant.createNullConstant();
+//            } else if (rightVal.isArray()) {
+//                List<SparkSQLConstant> temp = rightVal.asArray();
+//                if (temp.size() != array.size())
+//                    return SparkSQLConstant.createFalse();
+//                for (int i = 0; i < array.size(); i ++) {
+//                    if (array.get(i) != temp.get(i))
+//                        return SparkSQLConstant.createFalse();
+//                }
+//                return SparkSQLConstant.createTrue();
+//            } else {
+//                throw new AssertionError(rightVal);
+//            }
+//        }
+//
+//        @Override
+//        public SparkSQLConstant isLessThan(SparkSQLConstant rightVal) {
+//            if (rightVal.isNull()) {
+//                return SparkSQLConstant.createNullConstant();
+//            } else {
+//                throw new AssertionError(rightVal);
+//            }
+//        }
+//
+//        @Override
+//        public SparkSQLConstant cast(SparkSQLDataType type) {
+//            switch (type) {
+//            case ARRAY:
+//                return this;
+//            case STRING:
+//                return SparkSQLConstant.createStringConstant(getUnquotedTextRepresentation());
+//            case VARCHAR:
+//                return SparkSQLConstant.createVarCharConstant(getUnquotedTextRepresentation(), getUnquotedTextRepresentation().length());
+//            case CHAR:
+//                return SparkSQLConstant.createCharConstant(getUnquotedTextRepresentation(), getUnquotedTextRepresentation().length());
+//            default:
+//                return null;
+//            }
+//        }
+//
+//        @Override
+//        public String getUnquotedTextRepresentation() {
+//            return getTextRepresentation();
+//        }
+//
+//    }
+//
+//    public static class SparkSQLMapConstant  extends SparkSQLConstant {
+//
+//        private final Map<SparkSQLConstant, SparkSQLConstant> map;
+//
+//        public SparkSQLMapConstant(Map<SparkSQLConstant, SparkSQLConstant> map, SparkSQLConstant valueContainsNull) {
+//            this.map = new HashMap<SparkSQLConstant, SparkSQLConstant>();
+//            this.map.putAll(map);
+//            for (Map.Entry<SparkSQLConstant, SparkSQLConstant> e: map.entrySet()) {
+//                if (e.getKey().isNull()) {
+//                    throw new AssertionError(e.getKey());
+//                }
+//                if (!valueContainsNull.asBoolean() && e.getValue().isNull()) {
+//                    throw new AssertionError(e.getValue());
+//                }
+//            }
+//        }
+//
+//        @Override
+//        public String getTextRepresentation() {
+//            return String.format("%s", map);
+//        }
+//
+//        @Override
+//        public SparkSQLDataType getExpressionType() {
+//            return SparkSQLDataType.MAP;
+//        }
+//
+//        @Override
+//        public Map<SparkSQLConstant, SparkSQLConstant> asMap() {
+//            return map;
+//        }
+//
+//        @Override
+//        public boolean isMap() {
+//            return true;
+//        }
+//
+//        @Override
+//        public SparkSQLConstant isEquals(SparkSQLConstant rightVal) {
+//            if (rightVal.isNull()) {
+//                return SparkSQLConstant.createNullConstant();
+//            } else if (rightVal.isMap()) {
+//                Map<SparkSQLConstant, SparkSQLConstant> temp = rightVal.asMap();
+//                if (temp.size() != map.size())
+//                    return SparkSQLConstant.createFalse();
+//                for (Map.Entry<SparkSQLConstant, SparkSQLConstant> e: map.entrySet()) {
+//                    if (!temp.containsKey(e.getKey()) || !temp.get(e.getKey()).equals(e.getValue())) {
+//                        return SparkSQLConstant.createFalse();
+//                    }
+//                }
+//                return SparkSQLConstant.createTrue();
+//            } else {
+//                throw new AssertionError(rightVal);
+//            }
+//        }
+//
+//        @Override
+//        public SparkSQLConstant isLessThan(SparkSQLConstant rightVal) {
+//            if (rightVal.isNull()) {
+//                return SparkSQLConstant.createNullConstant();
+//            } else {
+//                throw new AssertionError(rightVal);
+//            }
+//        }
+//
+//        @Override
+//        public SparkSQLConstant cast(SparkSQLDataType type) {
+//            switch (type) {
+//            case ARRAY:
+//                return this;
+//            case STRING:
+//                return SparkSQLConstant.createStringConstant(getUnquotedTextRepresentation());
+//            case VARCHAR:
+//                return SparkSQLConstant.createVarCharConstant(getUnquotedTextRepresentation(), getUnquotedTextRepresentation().length());
+//            case CHAR:
+//                return SparkSQLConstant.createCharConstant(getUnquotedTextRepresentation(), getUnquotedTextRepresentation().length());
+//            default:
+//                return null;
+//            }
+//        }
+//
+//        @Override
+//        public String getUnquotedTextRepresentation() {
+//            return getTextRepresentation();
+//        }
+//
+//    }
 
-        private final List<SparkSQLConstant> array;
+//    public static class SparkSQLStructConstant  extends SparkSQLConstant {
+//
+//        private final Row struct;
+//
+//        public SparkSQLStructConstant(List<SparkSQLStructFieldConstant> fields) {
+//            struct = RowFactory.create(fields);
+//            for (int i = 0; i < struct.size(); i ++) {
+//                for (int j = i + 1; j < struct.size(); j ++) {
+//                    if (((SparkSQLConstant) struct.getAs(i)).isEquals((SparkSQLConstant) struct.getAs(j)).asBoolean()) {
+//                        throw new AssertionError();
+//                    }
+//                }
+//            }
+//        }
+//
+//        @Override
+//        public String getTextRepresentation() {
+//            return String.format("%s", struct);
+//        }
+//
+//        @Override
+//        public SparkSQLDataType getExpressionType() {
+//            return SparkSQLDataType.STRUCT;
+//        }
+//
+//        @Override
+//        public Row asStruct() {
+//            return struct;
+//        }
+//
+//        @Override
+//        public boolean isStruct() {
+//            return true;
+//        }
+//
+//        @Override
+//        public SparkSQLConstant isEquals(SparkSQLConstant rightVal) {
+//            if (rightVal.isNull()) {
+//                return SparkSQLConstant.createNullConstant();
+//            } else if (rightVal.isStruct()) {
+//                return SparkSQLConstant.createBooleanConstant(struct.equals(rightVal.asStruct()));
+//            } else {
+//                throw new AssertionError(rightVal);
+//            }
+//        }
+//
+//        @Override
+//        public SparkSQLConstant isLessThan(SparkSQLConstant rightVal) {
+//            if (rightVal.isNull()) {
+//                return SparkSQLConstant.createNullConstant();
+//            } else {
+//                throw new AssertionError(rightVal);
+//            }
+//        }
+//
+//        @Override
+//        public SparkSQLConstant cast(SparkSQLDataType type) {
+//            switch (type) {
+//            case STRUCT:
+//                return this;
+//            case STRING:
+//                return SparkSQLConstant.createStringConstant(getUnquotedTextRepresentation());
+//            case VARCHAR:
+//                return SparkSQLConstant.createVarCharConstant(getUnquotedTextRepresentation(), getUnquotedTextRepresentation().length());
+//            case CHAR:
+//                return SparkSQLConstant.createCharConstant(getUnquotedTextRepresentation(), getUnquotedTextRepresentation().length());
+//            default:
+//                return null;
+//            }
+//        }
+//
+//        @Override
+//        public String getUnquotedTextRepresentation() {
+//            return getTextRepresentation();
+//        }
+//
+//    }
 
-        public SparkSQLArrayConstant(List<SparkSQLConstant> array, SparkSQLConstant containsNull) {
-            this.array = new ArrayList<SparkSQLConstant>();
-            this.array.addAll(array);
-            if (!containsNull.asBoolean()) {
-                for (SparkSQLConstant e: array) {
-                    if (e.isNull()) {
-                        throw new AssertionError(e);
-                    }
-                }
-            }
-        }
-
-        @Override
-        public String getTextRepresentation() {
-            return String.format("%s", array);
-        }
-
-        @Override
-        public SparkSQLDataType getExpressionType() {
-            return SparkSQLDataType.ARRAY;
-        }
-
-        @Override
-        public List<SparkSQLConstant> asArray() {
-            return array;
-        }
-
-        @Override
-        public boolean isArray() {
-            return true;
-        }
-
-        @Override
-        public SparkSQLConstant isEquals(SparkSQLConstant rightVal) {
-            if (rightVal.isNull()) {
-                return SparkSQLConstant.createNullConstant();
-            } else if (rightVal.isArray()) {
-                List<SparkSQLConstant> temp = rightVal.asArray();
-                if (temp.size() != array.size())
-                    return SparkSQLConstant.createFalse();
-                for (int i = 0; i < array.size(); i ++) {
-                    if (array.get(i) != temp.get(i))
-                        return SparkSQLConstant.createFalse();
-                }
-                return SparkSQLConstant.createTrue();
-            } else {
-                throw new AssertionError(rightVal);
-            }
-        }
-
-        @Override
-        public SparkSQLConstant isLessThan(SparkSQLConstant rightVal) {
-            if (rightVal.isNull()) {
-                return SparkSQLConstant.createNullConstant();
-            } else {
-                throw new AssertionError(rightVal);
-            }
-        }
-
-        @Override
-        public SparkSQLConstant cast(SparkSQLDataType type) {
-            switch (type) {
-            case ARRAY:
-                return this;
-            case STRING:
-                return SparkSQLConstant.createStringConstant(getUnquotedTextRepresentation());
-            case VARCHAR:
-                return SparkSQLConstant.createVarCharConstant(getUnquotedTextRepresentation(), getUnquotedTextRepresentation().length());
-            case CHAR:
-                return SparkSQLConstant.createCharConstant(getUnquotedTextRepresentation(), getUnquotedTextRepresentation().length());
-            default:
-                return null;
-            }
-        }
-
-        @Override
-        public String getUnquotedTextRepresentation() {
-            return getTextRepresentation();
-        }
-
-    }
-
-    public static class SparkSQLMapConstant  extends SparkSQLConstant {
-
-        private final Map<SparkSQLConstant, SparkSQLConstant> map;
-
-        public SparkSQLMapConstant(Map<SparkSQLConstant, SparkSQLConstant> map, SparkSQLConstant valueContainsNull) {
-            this.map = new HashMap<SparkSQLConstant, SparkSQLConstant>();
-            this.map.putAll(map);
-            for (Map.Entry<SparkSQLConstant, SparkSQLConstant> e: map.entrySet()) {
-                if (e.getKey().isNull()) {
-                    throw new AssertionError(e.getKey());
-                }
-                if (!valueContainsNull.asBoolean() && e.getValue().isNull()) {
-                    throw new AssertionError(e.getValue());
-                }
-            }
-        }
-
-        @Override
-        public String getTextRepresentation() {
-            return String.format("%s", map);
-        }
-
-        @Override
-        public SparkSQLDataType getExpressionType() {
-            return SparkSQLDataType.MAP;
-        }
-
-        @Override
-        public Map<SparkSQLConstant, SparkSQLConstant> asMap() {
-            return map;
-        }
-
-        @Override
-        public boolean isMap() {
-            return true;
-        }
-
-        @Override
-        public SparkSQLConstant isEquals(SparkSQLConstant rightVal) {
-            if (rightVal.isNull()) {
-                return SparkSQLConstant.createNullConstant();
-            } else if (rightVal.isMap()) {
-                Map<SparkSQLConstant, SparkSQLConstant> temp = rightVal.asMap();
-                if (temp.size() != map.size())
-                    return SparkSQLConstant.createFalse();
-                for (Map.Entry<SparkSQLConstant, SparkSQLConstant> e: map.entrySet()) {
-                    if (!temp.containsKey(e.getKey()) || !temp.get(e.getKey()).equals(e.getValue())) {
-                        return SparkSQLConstant.createFalse();
-                    }
-                }
-                return SparkSQLConstant.createTrue();
-            } else {
-                throw new AssertionError(rightVal);
-            }
-        }
-
-        @Override
-        public SparkSQLConstant isLessThan(SparkSQLConstant rightVal) {
-            if (rightVal.isNull()) {
-                return SparkSQLConstant.createNullConstant();
-            } else {
-                throw new AssertionError(rightVal);
-            }
-        }
-
-        @Override
-        public SparkSQLConstant cast(SparkSQLDataType type) {
-            switch (type) {
-            case ARRAY:
-                return this;
-            case STRING:
-                return SparkSQLConstant.createStringConstant(getUnquotedTextRepresentation());
-            case VARCHAR:
-                return SparkSQLConstant.createVarCharConstant(getUnquotedTextRepresentation(), getUnquotedTextRepresentation().length());
-            case CHAR:
-                return SparkSQLConstant.createCharConstant(getUnquotedTextRepresentation(), getUnquotedTextRepresentation().length());
-            default:
-                return null;
-            }
-        }
-
-        @Override
-        public String getUnquotedTextRepresentation() {
-            return getTextRepresentation();
-        }
-
-    }
-
-    public static class SparkSQLStructConstant  extends SparkSQLConstant {
-
-        private final Row struct;
-
-        public SparkSQLStructConstant(List<SparkSQLStructFieldConstant> fields) {
-            struct = RowFactory.create(fields);
-            for (int i = 0; i < struct.size(); i ++) {
-                for (int j = i + 1; j < struct.size(); j ++) {
-                    if (((SparkSQLConstant) struct.getAs(i)).isEquals((SparkSQLConstant) struct.getAs(j)).asBoolean()) {
-                        throw new AssertionError();
-                    }
-                }
-            }
-        }
-
-        @Override
-        public String getTextRepresentation() {
-            return String.format("%s", struct);
-        }
-
-        @Override
-        public SparkSQLDataType getExpressionType() {
-            return SparkSQLDataType.STRUCT;
-        }
-
-        @Override
-        public Row asStruct() {
-            return struct;
-        }
-
-        @Override
-        public boolean isStruct() {
-            return true;
-        }
-
-        @Override
-        public SparkSQLConstant isEquals(SparkSQLConstant rightVal) {
-            if (rightVal.isNull()) {
-                return SparkSQLConstant.createNullConstant();
-            } else if (rightVal.isStruct()) {
-                return SparkSQLConstant.createBooleanConstant(struct.equals(rightVal.asStruct()));
-            } else {
-                throw new AssertionError(rightVal);
-            }
-        }
-
-        @Override
-        public SparkSQLConstant isLessThan(SparkSQLConstant rightVal) {
-            if (rightVal.isNull()) {
-                return SparkSQLConstant.createNullConstant();
-            } else {
-                throw new AssertionError(rightVal);
-            }
-        }
-
-        @Override
-        public SparkSQLConstant cast(SparkSQLDataType type) {
-            switch (type) {
-            case STRUCT:
-                return this;
-            case STRING:
-                return SparkSQLConstant.createStringConstant(getUnquotedTextRepresentation());
-            case VARCHAR:
-                return SparkSQLConstant.createVarCharConstant(getUnquotedTextRepresentation(), getUnquotedTextRepresentation().length());
-            case CHAR:
-                return SparkSQLConstant.createCharConstant(getUnquotedTextRepresentation(), getUnquotedTextRepresentation().length());
-            default:
-                return null;
-            }
-        }
-
-        @Override
-        public String getUnquotedTextRepresentation() {
-            return getTextRepresentation();
-        }
-
-    }
-
-    public static class SparkSQLStructFieldConstant  extends SparkSQLConstant {
-
-        private final SparkSQLStringConstant name;
-        private final SparkSQLConstant value;
-
-        public SparkSQLStructFieldConstant(SparkSQLStringConstant name, SparkSQLConstant value, SparkSQLConstant nullable) {
-            if (!nullable.asBoolean() && value.isNull()) {
-                throw new AssertionError(value);
-            }
-            this.name = name;
-            this.value = value;
-        }
-
-        @Override
-        public String getTextRepresentation() {
-            return String.format("%s: %s", name.getTextRepresentation(), value.getTextRepresentation());
-        }
-
-        @Override
-        public SparkSQLDataType getExpressionType() {
-            return SparkSQLDataType.STRUCT;
-        }
-
-        public SparkSQLStringConstant getName() {
-            return name;
-        }
-
-        @Override
-        public SparkSQLConstant asStructField() {
-            return value;
-        }
-
-        @Override
-        public boolean isStruct() {
-            return true;
-        }
-
-        @Override
-        public SparkSQLConstant isEquals(SparkSQLConstant rightVal) {
-            if (rightVal.isNull()) {
-                return SparkSQLConstant.createNullConstant();
-            } else if (rightVal.isStructField()) {
-                return SparkSQLConstant.createBooleanConstant(name.isEquals(((SparkSQLStructFieldConstant) rightVal).getName()).asBoolean() && value.isEquals(rightVal).asBoolean());
-            } else {
-                throw new AssertionError(rightVal);
-            }
-        }
-
-        @Override
-        public SparkSQLConstant isLessThan(SparkSQLConstant rightVal) {
-            if (rightVal.isNull()) {
-                return SparkSQLConstant.createNullConstant();
-            } else {
-                throw new AssertionError(rightVal);
-            }
-        }
-
-        @Override
-        public SparkSQLConstant cast(SparkSQLDataType type) {
-            switch (type) {
-            case STRUCT_FIELD:
-                return this;
-            case STRUCT:
-                List<SparkSQLStructFieldConstant> field = new ArrayList<SparkSQLStructFieldConstant>();
-                field.add(this);
-                return SparkSQLConstant.createStructConstant(field);
-            case STRING:
-                return SparkSQLConstant.createStringConstant(getUnquotedTextRepresentation());
-            case VARCHAR:
-                return SparkSQLConstant.createVarCharConstant(getUnquotedTextRepresentation(), getUnquotedTextRepresentation().length());
-            case CHAR:
-                return SparkSQLConstant.createCharConstant(getUnquotedTextRepresentation(), getUnquotedTextRepresentation().length());
-            default:
-                return null;
-            }
-        }
-
-        @Override
-        public String getUnquotedTextRepresentation() {
-            return getTextRepresentation();
-        }
-
-    }
+//    public static class SparkSQLStructFieldConstant  extends SparkSQLConstant {
+//
+//        private final SparkSQLStringConstant name;
+//        private final SparkSQLConstant value;
+//
+//        public SparkSQLStructFieldConstant(SparkSQLStringConstant name, SparkSQLConstant value, SparkSQLConstant nullable) {
+//            if (!nullable.asBoolean() && value.isNull()) {
+//                throw new AssertionError(value);
+//            }
+//            this.name = name;
+//            this.value = value;
+//        }
+//
+//        @Override
+//        public String getTextRepresentation() {
+//            return String.format("%s: %s", name.getTextRepresentation(), value.getTextRepresentation());
+//        }
+//
+//        @Override
+//        public SparkSQLDataType getExpressionType() {
+//            return SparkSQLDataType.STRUCT;
+//        }
+//
+//        public SparkSQLStringConstant getName() {
+//            return name;
+//        }
+//
+//        @Override
+//        public SparkSQLConstant asStructField() {
+//            return value;
+//        }
+//
+//        @Override
+//        public boolean isStruct() {
+//            return true;
+//        }
+//
+//        @Override
+//        public SparkSQLConstant isEquals(SparkSQLConstant rightVal) {
+//            if (rightVal.isNull()) {
+//                return SparkSQLConstant.createNullConstant();
+//            } else if (rightVal.isStructField()) {
+//                return SparkSQLConstant.createBooleanConstant(name.isEquals(((SparkSQLStructFieldConstant) rightVal).getName()).asBoolean() && value.isEquals(rightVal).asBoolean());
+//            } else {
+//                throw new AssertionError(rightVal);
+//            }
+//        }
+//
+//        @Override
+//        public SparkSQLConstant isLessThan(SparkSQLConstant rightVal) {
+//            if (rightVal.isNull()) {
+//                return SparkSQLConstant.createNullConstant();
+//            } else {
+//                throw new AssertionError(rightVal);
+//            }
+//        }
+//
+//        @Override
+//        public SparkSQLConstant cast(SparkSQLDataType type) {
+//            switch (type) {
+//            case STRUCT_FIELD:
+//                return this;
+////            case STRUCT:
+////                List<SparkSQLStructFieldConstant> field = new ArrayList<SparkSQLStructFieldConstant>();
+////                field.add(this);
+////                return SparkSQLConstant.createStructConstant(field);
+//            case STRING:
+//                return SparkSQLConstant.createStringConstant(getUnquotedTextRepresentation());
+//            case VARCHAR:
+//                return SparkSQLConstant.createVarCharConstant(getUnquotedTextRepresentation(), getUnquotedTextRepresentation().length());
+//            case CHAR:
+//                return SparkSQLConstant.createCharConstant(getUnquotedTextRepresentation(), getUnquotedTextRepresentation().length());
+//            default:
+//                return null;
+//            }
+//        }
+//
+//        @Override
+//        public String getUnquotedTextRepresentation() {
+//            return getTextRepresentation();
+//        }
+//
+//    }
 
     // create constant methods
 
@@ -2344,33 +2344,33 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
         return new SparkSQLDateConstant(val);
     }
 
-    public static SparkSQLConstant createArrayConstant(List<SparkSQLConstant> array) {
-        return new SparkSQLArrayConstant(array, (SparkSQLBooleanConstant) createTrue());
-    }
-
-    public static SparkSQLConstant createArrayConstant(List<SparkSQLConstant> array, SparkSQLBooleanConstant containsNull) {
-        return new SparkSQLArrayConstant(array, containsNull);
-    }
-
-    public static SparkSQLConstant createMapConstant(Map<SparkSQLConstant, SparkSQLConstant> map) {
-        return new SparkSQLMapConstant(map, (SparkSQLBooleanConstant) createTrue());
-    }
-
-    public static SparkSQLConstant createMapConstant(Map<SparkSQLConstant, SparkSQLConstant> map, SparkSQLBooleanConstant valueContainsNull) {
-        return new SparkSQLMapConstant(map, valueContainsNull);
-    }
-
-    public static SparkSQLConstant createStructConstant(List<SparkSQLStructFieldConstant> fields) {
-        return new SparkSQLStructConstant(fields);
-    }
-
-    public static SparkSQLConstant createStructFieldConstant(SparkSQLStringConstant name, SparkSQLConstant value) {
-        return new SparkSQLStructFieldConstant(name, value, createTrue());
-    }
-
-    public static SparkSQLConstant createStructFieldConstant(SparkSQLStringConstant name, SparkSQLConstant value, SparkSQLBooleanConstant nullable) {
-        return new SparkSQLStructFieldConstant(name, value, nullable);
-    }
+//    public static SparkSQLConstant createArrayConstant(List<SparkSQLConstant> array) {
+//        return new SparkSQLArrayConstant(array, (SparkSQLBooleanConstant) createTrue());
+//    }
+//
+//    public static SparkSQLConstant createArrayConstant(List<SparkSQLConstant> array, SparkSQLBooleanConstant containsNull) {
+//        return new SparkSQLArrayConstant(array, containsNull);
+//    }
+//
+//    public static SparkSQLConstant createMapConstant(Map<SparkSQLConstant, SparkSQLConstant> map) {
+//        return new SparkSQLMapConstant(map, (SparkSQLBooleanConstant) createTrue());
+//    }
+//
+//    public static SparkSQLConstant createMapConstant(Map<SparkSQLConstant, SparkSQLConstant> map, SparkSQLBooleanConstant valueContainsNull) {
+//        return new SparkSQLMapConstant(map, valueContainsNull);
+//    }
+//
+//    public static SparkSQLConstant createStructConstant(List<SparkSQLStructFieldConstant> fields) {
+//        return new SparkSQLStructConstant(fields);
+//    }
+//
+//    public static SparkSQLConstant createStructFieldConstant(SparkSQLStringConstant name, SparkSQLConstant value) {
+//        return new SparkSQLStructFieldConstant(name, value, createTrue());
+//    }
+//
+//    public static SparkSQLConstant createStructFieldConstant(SparkSQLStringConstant name, SparkSQLConstant value, SparkSQLBooleanConstant nullable) {
+//        return new SparkSQLStructFieldConstant(name, value, nullable);
+//    }
 
     // check type methods
 
@@ -2525,9 +2525,9 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
         throw new UnsupportedOperationException(this.toString());
     }
 
-    public Row asStruct() {
-        throw new UnsupportedOperationException(this.toString());
-    }
+//    public Row asStruct() {
+//        throw new UnsupportedOperationException(this.toString());
+//    }
 
     public SparkSQLConstant asStructField() {
         throw new UnsupportedOperationException(this.toString());

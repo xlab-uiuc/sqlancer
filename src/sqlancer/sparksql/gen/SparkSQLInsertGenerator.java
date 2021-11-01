@@ -2,21 +2,13 @@ package sqlancer.sparksql.gen;
 
 import com.sun.org.apache.xpath.internal.operations.String;
 import sqlancer.Randomly;
-import sqlancer.common.gen.AbstractInsertGenerator;
 import sqlancer.common.query.ExpectedErrors;
 import sqlancer.common.query.SQLQueryAdapter;
-import sqlancer.mysql.MySQLVisitor;
-import sqlancer.postgres.PostgresGlobalState;
-import sqlancer.postgres.PostgresSchema;
-import sqlancer.postgres.PostgresVisitor;
-import sqlancer.postgres.ast.PostgresExpression;
-import sqlancer.postgres.gen.PostgresExpressionGenerator;
+import sqlancer.sparksql.SparkSQLVisitor;
 import sqlancer.sparksql.SparkSQLProvider.SparkSQLGlobalState;
 import sqlancer.sparksql.SparkSQLSchema.SparkSQLColumn;
 import sqlancer.sparksql.SparkSQLSchema.SparkSQLTable;
-import sqlancer.sparksql.ast.SparkSQLConstant;
 import sqlancer.sparksql.ast.SparkSQLExpression;
-import sqlancer.sparksql.gen.SparkSQLExpressionGenerator;
 
 import java.util.List;
 import java.util.stream.Collectors;
