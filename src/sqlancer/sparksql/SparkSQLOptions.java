@@ -7,6 +7,7 @@ import sqlancer.OracleFactory;
 import sqlancer.common.oracle.TestOracle;
 import sqlancer.sparksql.SparkSQLProvider.SparkSQLGlobalState;
 import sqlancer.sparksql.SparkSQLOptions.SparkSQLOracleFactory;
+import sqlancer.sparksql.oracle.SparkSQLNoRECOracle;
 
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -19,18 +20,15 @@ public class SparkSQLOptions implements DBMSSpecificOptions<SparkSQLOracleFactor
     public static final int DEFAULT_PORT = 10000;
 
     @Parameter(names = "--oracle")
-    public List<SparkSQLOracleFactory> oracles = Arrays.asList(SparkSQLOracleFactory.ORACLE_1);
+    public List<SparkSQLOracleFactory> oracles = Arrays.asList(SparkSQLOracleFactory.NOREC);
 
     // TODO: add all test oracles here
     public enum SparkSQLOracleFactory implements OracleFactory<SparkSQLGlobalState> {
-
-        ORACLE_1 {
-
+        NOREC {
             @Override
             public TestOracle create(SparkSQLGlobalState globalState) throws SQLException {
-                return null;
+                return new SparkSQLNoRECOracle(globalState);
             }
-
         },
     }
 

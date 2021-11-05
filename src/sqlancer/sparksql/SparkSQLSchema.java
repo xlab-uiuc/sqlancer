@@ -26,7 +26,6 @@ public class SparkSQLSchema extends AbstractSchema<SparkSQLGlobalState, SparkSQL
         }
     }
 
-    // TODO(lilia): unsure if this is a relevant class
 //    public static class SparkSQLCompositeDataType {
 //
 //        private final SparkSQLDataType dataType;
