@@ -4,6 +4,7 @@ import org.postgresql.util.PSQLException;
 import sqlancer.IgnoreMeException;
 import sqlancer.Randomly;
 import sqlancer.SQLConnection;
+import sqlancer.common.DBMSCommon;
 import sqlancer.common.schema.*;
 import sqlancer.sparksql.ast.SparkSQLConstant;
 import sqlancer.sparksql.SparkSQLProvider.SparkSQLGlobalState;
@@ -166,7 +167,22 @@ public class SparkSQLSchema extends AbstractSchema<SparkSQLGlobalState, SparkSQL
 
     // TODO: implement
     public static SparkSQLSchema fromConnection(SQLConnection con, String databaseName) throws SQLException {
-        return null;
+        List<SparkSQLTable> databaseTables = new ArrayList<>();
+        List<String> tableNames = getTableNames(con);
+        for (String tableName : tableNames) {
+            if (DBMSCommon.matchesIndexName(tableName)) {
+                continue; // TODO: unexpected?
+            }
+            List<SparkSQLColumn> databaseColumns = getTableColumns(con, tableName);
+            boolean isView = tableName.startsWith("v");
+            SparkSQLTable t = new SparkSQLTable(tableName, databaseColumns, isView);
+            for (SparkSQLColumn c : databaseColumns) {
+                c.setTable(t);
+            }
+            databaseTables.add(t);
+
+        }
+        return new SparkSQLSchema(databaseTables);
     }
 
     // TODO: implement
