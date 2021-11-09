@@ -3,16 +3,14 @@ package sqlancer.sparksql.gen;
 import sqlancer.IgnoreMeException;
 import sqlancer.Randomly;
 import sqlancer.common.gen.ExpressionGenerator;
-import sqlancer.sparksql.SparkSQLProvider;
+import sqlancer.sparksql.SparkSQLCompoundDataType;
 import sqlancer.sparksql.SparkSQLSchema;
 import sqlancer.sparksql.ast.SparkSQLBinaryComparisonOperation;
 import sqlancer.sparksql.ast.SparkSQLExpression;
 import sqlancer.sparksql.ast.SparkSQLInOperation;
-import sqlancer.sparksql.SparkSQLSchema;
 import sqlancer.sparksql.ast.*;
 import sqlancer.sparksql.ast.SparkSQLBinaryArithmeticOperation;
 import sqlancer.sparksql.ast.SparkSQLCastOperation;
-import sqlancer.sparksql.ast.SparkSQLExpression;
 import sqlancer.sparksql.ast.SparkSQLPrefixOperation;
 import sqlancer.sparksql.SparkSQLProvider.SparkSQLGlobalState;
 import sqlancer.sparksql.SparkSQLSchema.SparkSQLDataType;
@@ -25,7 +23,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// TODO: determine correct expression generator
 public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQLExpression> {
 
     private final SparkSQLGlobalState state;
@@ -161,7 +158,7 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
                 SparkSQLDataType dataType = getMeaningfulType();
                 return generateComparison(depth, dataType);
             case CAST:
-                return new SparkSQLCastOperation(generateExpression(depth + 1), SparkSQLDataType.BOOLEAN);
+                return new SparkSQLCastOperation(generateExpression(depth + 1), getCompoundDataType(SparkSQLDataType.BOOLEAN));
             case LIKE:
                 return new SparkSQLLikeOperation(generateExpression(depth + 1, SparkSQLDataType.STRING),
                         generateExpression(depth + 1, SparkSQLDataType.STRING));
@@ -172,6 +169,27 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
             default:
                 throw new AssertionError();
         }
+    }
+
+    private static SparkSQLCompoundDataType getCompoundDataType(SparkSQLSchema.SparkSQLDataType type) {
+        switch (type) {
+            case BOOLEAN:
+            case DECIMAL: // TODO
+            case FLOAT:
+            case INT:
+            case STRING:
+            case DOUBLE:
+//            case TEXT: // TODO
+//            case BIT:
+//                if (Randomly.getBoolean()) {
+                return SparkSQLCompoundDataType.create(type);
+//                } else {
+//                    return SparkSQLCompoundDataType.create(type, (int) Randomly.getNotCachedInteger(1, 1000));
+//                }
+            default:
+                throw new AssertionError(type);
+        }
+
     }
 
     private SparkSQLSchema.SparkSQLDataType getMeaningfulType() {
@@ -215,7 +233,7 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
         option = Randomly.fromOptions(IntExpression.values());
         switch (option) {
             case CAST:
-                return new SparkSQLCastOperation(generateExpression(depth + 1), SparkSQLDataType.INT);
+                return new SparkSQLCastOperation(generateExpression(depth + 1), getCompoundDataType(SparkSQLDataType.INT));
             case UNARY_OPERATION:
                 SparkSQLExpression intExpression = generateExpression(depth + 1, SparkSQLDataType.INT);
                 return new SparkSQLPrefixOperation(intExpression,
@@ -241,7 +259,7 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
 
         switch (option) {
             case CAST:
-                return new SparkSQLCastOperation(generateExpression(depth + 1), SparkSQLDataType.STRING);
+                return new SparkSQLCastOperation(generateExpression(depth + 1), getCompoundDataType(SparkSQLDataType.STRING));
             case CONCAT:
                 return generateConcat(depth);
             default:
@@ -255,9 +273,9 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
         return new SparkSQLConcatOperation(left, right);
     }
 
-    private enum BinaryExpression {
-        BINARY_OPERATION
-    }
+//    private enum BinaryExpression {
+//        BINARY_OPERATION
+//    }
 
 //    private SparkSQLExpression generateBinaryExpression(int depth) {
 //        BinaryExpression option;
@@ -288,8 +306,8 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
                 return SparkSQLConstant.createFloatConstant((float) r.getDouble());
             case DOUBLE:
                 return SparkSQLConstant.createDoubleConstant(r.getDouble());
-            case BINARY:
-                return SparkSQLConstant.createBinaryConstant(r.getInteger());
+//            case BINARY:
+//                return SparkSQLConstant.createBinaryConstant(r.getInteger());
             default:
                 throw new AssertionError(type);
         }

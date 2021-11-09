@@ -1,14 +1,15 @@
 package sqlancer.sparksql.ast;
 
+import sqlancer.postgres.PostgresCompoundDataType;
 import sqlancer.sparksql.SparkSQLCompoundDataType;
 import sqlancer.sparksql.SparkSQLSchema.SparkSQLDataType;
 
 public class SparkSQLCastOperation implements SparkSQLExpression {
 
     private final SparkSQLExpression expression;
-    private final SparkSQLDataType type;
+    private final SparkSQLCompoundDataType type;
 
-    public SparkSQLCastOperation(SparkSQLExpression expression, SparkSQLDataType type) {
+    public SparkSQLCastOperation(SparkSQLExpression expression, SparkSQLCompoundDataType type) {
         if (expression == null) {
             throw new AssertionError();
         }
@@ -18,7 +19,7 @@ public class SparkSQLCastOperation implements SparkSQLExpression {
 
     @Override
     public SparkSQLDataType getExpressionType() {
-        return type;
+        return type.getDataType();
     }
 
     @Override
@@ -27,11 +28,15 @@ public class SparkSQLCastOperation implements SparkSQLExpression {
         if (expectedValue == null) {
             return null;
         }
-        return expectedValue.cast(type);
+        return expectedValue.cast(type.getDataType());
     }
 
     public SparkSQLExpression getExpression() {
         return expression;
+    }
+
+    public SparkSQLCompoundDataType getCompoundType() {
+        return type;
     }
 
 }

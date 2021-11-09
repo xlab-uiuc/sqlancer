@@ -5,7 +5,6 @@ import sqlancer.common.DBMSCommon;
 import sqlancer.common.query.ExpectedErrors;
 import sqlancer.common.query.SQLQueryAdapter;
 import sqlancer.common.query.SQLQueryProvider;
-import sqlancer.sparksql.SparkSQLOptions;
 import sqlancer.sparksql.gen.SparkSQLTableGenerator;
 import sqlancer.sparksql.gen.SparkSQLInsertGenerator;
 
@@ -72,7 +71,8 @@ public class SparkSQLProvider extends SQLProviderAdapter<sqlancer.sparksql.Spark
     // TODO: implement
     @Override
     public void generateDatabase(SparkSQLGlobalState globalState) throws Exception {
-
+        createTables(globalState, Randomly.fromOptions(4, 5, 6));
+        prepareTables(globalState);
     }
 
     // TODO: implement
@@ -95,7 +95,7 @@ public class SparkSQLProvider extends SQLProviderAdapter<sqlancer.sparksql.Spark
         String url = String.format("jdbc:hive2://%s:%d", host, port);
         Connection con = DriverManager.getConnection(url, username, password);
         try (Statement s = con.createStatement()) {
-            s.execute("DROP DATABASE IF EXISTS " + databaseName);
+            s.execute("DROP DATABASE IF EXISTS " + databaseName + " CASCADE");
         }
         try (Statement s = con.createStatement()) {
             s.execute("CREATE DATABASE " + databaseName);
@@ -104,6 +104,30 @@ public class SparkSQLProvider extends SQLProviderAdapter<sqlancer.sparksql.Spark
             s.execute("USE " + databaseName);
         }
         return new SQLConnection(con);
+    }
+
+    protected void createTables(SparkSQLGlobalState globalState, int numTables) throws Exception {
+        while (globalState.getSchema().getDatabaseTables().size() < numTables) {
+            try {
+                String tableName = DBMSCommon.createTableName(globalState.getSchema().getDatabaseTables().size());
+                SQLQueryAdapter createTable = SparkSQLTableGenerator.generate(globalState, tableName);
+                globalState.executeStatement(createTable);
+            } catch (IgnoreMeException e) {
+
+            }
+        }
+    }
+
+    protected void prepareTables(SparkSQLGlobalState globalState) throws Exception {
+        StatementExecutor<SparkSQLGlobalState, SparkSQLProvider.Action> se = new StatementExecutor<>(globalState, SparkSQLProvider.Action.values(),
+                SparkSQLProvider::mapActions, (q) -> {
+            if (globalState.getSchema().getDatabaseTables().isEmpty()) {
+                throw new IgnoreMeException();
+            }
+        });
+        se.executeStatements();
+        globalState.executeStatement(new SQLQueryAdapter("COMMIT", true));
+        globalState.executeStatement(new SQLQueryAdapter("SET SESSION statement_timeout = 5000;\n"));
     }
 
     // TODO: implement

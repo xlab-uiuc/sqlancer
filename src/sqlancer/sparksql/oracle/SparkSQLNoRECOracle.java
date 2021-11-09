@@ -14,6 +14,7 @@ import sqlancer.common.oracle.NoRECBase;
 import sqlancer.common.oracle.TestOracle;
 import sqlancer.common.query.SQLQueryAdapter;
 import sqlancer.common.query.SQLancerResultSet;
+import sqlancer.sparksql.SparkSQLCompoundDataType;
 import sqlancer.sparksql.SparkSQLSchema;
 import sqlancer.sparksql.SparkSQLSchema.SparkSQLColumn;
 import sqlancer.sparksql.SparkSQLSchema.SparkSQLDataType;
@@ -99,7 +100,7 @@ public class SparkSQLNoRECOracle extends NoRECBase<SparkSQLGlobalState> implemen
     private int getUnoptimizedQueryCount(List<SparkSQLExpression> fromTables, SparkSQLExpression randomWhereCondition)
             throws SQLException {
         SparkSQLSelect select = new SparkSQLSelect();
-        SparkSQLCastOperation isTrue = new SparkSQLCastOperation(randomWhereCondition, SparkSQLDataType.INT);
+        SparkSQLCastOperation isTrue = new SparkSQLCastOperation(randomWhereCondition, SparkSQLCompoundDataType.create(SparkSQLDataType.INT));
         //SparkSQLPostfixText asText = new SparkSQLPostfixText(isTrue, " as count", null, SparkSQLDataType.INT);
         select.setFetchColumns(Collections.singletonList(isTrue));
         select.setFromList(fromTables);

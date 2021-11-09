@@ -59,6 +59,9 @@ public class SparkSQLTableGenerator {
         } else {
             createStandard();
         }
+        if (external) {
+            appendLocation();
+        }
         return new SQLQueryAdapter(sb.toString(), errors, true);
     }
 
@@ -107,6 +110,7 @@ public class SparkSQLTableGenerator {
         String columnName = DBMSCommon.createColumnName(columnId);
         columns.add(columnName);
         sb.append(columnName);
+        sb.append(" ");
         // TODO: move nested type generation to DataType
         //  appendTypeString should only unravel DataType
         SparkSQLDataType randomType = SparkSQLDataType.getRandomType();
@@ -118,18 +122,18 @@ public class SparkSQLTableGenerator {
         // TBLPROPERTIES, COMMENT seem unnecessary
         // TODO: implement AS when SELECT is done
         // TODO: implement CLUSTERED/SORTED BY if potentially useful
-        ROW_FORMAT, STORED_AS, LOCATION;
+        ROW_FORMAT, STORED_AS;
         // AS;
-        public static List<SparkSQLTableGenerator.TableOptions> getRandomTableOptions() {
-            List<SparkSQLTableGenerator.TableOptions> options;
+        public static List<TableOptions> getRandomTableOptions() {
+            List<TableOptions> options;
             // try to ensure that usually, only a few of these options are generated
             if (Randomly.getBooleanWithSmallProbability()) {
-                options = Randomly.subset(SparkSQLTableGenerator.TableOptions.values());
+                options = Randomly.subset(TableOptions.values());
             } else {
                 if (Randomly.getBoolean()) {
                     options = Collections.emptyList();
                 } else {
-                    options = Randomly.nonEmptySubset(Arrays.asList(SparkSQLTableGenerator.TableOptions.values()), Randomly.smallNumber());
+                    options = Randomly.nonEmptySubset(Arrays.asList(TableOptions.values()), Randomly.smallNumber());
                 }
             }
             return options;
@@ -140,9 +144,6 @@ public class SparkSQLTableGenerator {
         List<SparkSQLTableGenerator.TableOptions> tableOptions = SparkSQLTableGenerator.TableOptions.getRandomTableOptions();
         int i = 0;
         for (SparkSQLTableGenerator.TableOptions o : tableOptions) {
-            if (i++ != 0) {
-                sb.append(", ");
-            }
             switch (o) {
                 case ROW_FORMAT:
                     appendRowFormat();
@@ -158,46 +159,46 @@ public class SparkSQLTableGenerator {
 
     private void appendRowFormat() {
         sb.append("ROW FORMAT ");
-        String row_format = Randomly.fromOptions("SERDE 'org.apache.hadoop.hive.serde2.avro.AvroSerDe'",
-                                                 "DELIMITED FIELDS TERMINATED BY ','");
+        String row_format = Randomly.fromOptions("SERDE 'org.apache.hadoop.hive.serde2.avro.AvroSerDe' ",
+                                                 "DELIMITED FIELDS TERMINATED BY ',' ");
         sb.append(row_format);
     }
 
     private void appendStoredAs() {
         sb.append("STORED AS ");
-        String stored = Randomly.fromOptions("SERDE 'org.apache.hadoop.hive.serde2.avro.AvroSerDe'",
-                                             "ORC",
-                                             "INPUTFORMAT 'org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat'",
-                                             "TEXTFILE",
-                                             "PARQUET");
+        String stored = Randomly.fromOptions("ORC ",
+                                             "INPUTFORMAT 'org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat' OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat' ",
+                                             "TEXTFILE ",
+                                             "PARQUET ");
         sb.append(stored);
+    }
+
+    private void appendLocation() {
+        sb.append("LOCATION ");
+        sb.append("'/tmp/table'");
     }
 
     private void generatePartitionBy() {
         if (Randomly.getBoolean()) {
             return;
         }
-        sb.append(" PARTITION BY (");
+        sb.append(" PARTITIONED BY (");
         int n = Randomly.getBooleanWithSmallProbability()? Randomly.smallNumber() + 1 : 1;
         for (int i = 0; i < n; i++) {
             if (i != 0) {
                 sb.append(", ");
             }
-            sb.append("(");
             // column does not need to be in the CREATE TABLE
             // TODO: fix when generating expressions
-            SparkSQLExpression expr = SparkSQLExpressionGenerator.generateExpression(globalState, columnsToBeAdded);
-            sb.append(SparkSQLVisitor.asString(expr)); // x INT
-            sb.append(")");
+            appendColumn();
         }
-        sb.append(")");
+        sb.append(") ");
     }
 
     private void appendTypeString(SparkSQLDataType randomType) {
         switch (randomType) {
             case DECIMAL:
                 sb.append("DECIMAL");
-                optionallyAddPrecisionAndScale(sb);
                 break;
             case INT:
                 sb.append(Randomly.fromOptions("TINYINT", "SMALLINT", "INT", "BIGINT"));
@@ -213,11 +214,9 @@ public class SparkSQLTableGenerator {
                 break;
             case FLOAT:
                 sb.append("FLOAT");
-                optionallyAddPrecisionAndScale(sb);
                 break;
             case DOUBLE:
                 sb.append(Randomly.fromOptions("DOUBLE", "FLOAT"));
-                optionallyAddPrecisionAndScale(sb);
                 break;
 //            case DATETIME:
 //                sb.append(Randomly.fromOptions("DATE", "TIMESTAMP"));
@@ -252,30 +251,14 @@ public class SparkSQLTableGenerator {
 //                appendTypeString(SparkSQLDataType.getRandomType(), maxDepth-1);
 //                sb.append(">");
 //                break;
-            case BINARY:
-                sb.append("BINARY");
-                break;
+//            case BINARY:
+//                sb.append("BINARY");
+//                break;
             case BOOLEAN:
                 sb.append("BOOLEAN");
                 break;
             default:
                 throw new AssertionError();
-        }
-    }
-
-    public static void optionallyAddPrecisionAndScale(StringBuilder sb) {
-        if (Randomly.getBoolean()) {
-            sb.append("(");
-            // The maximum number of digits (M) for DECIMAL is 65
-            long m = Randomly.getNotCachedInteger(1, 65);
-            sb.append(m);
-            sb.append(", ");
-            // The maximum number of supported decimals (D) is 30
-            long nCandidate = Randomly.getNotCachedInteger(1, 30);
-            // For float(M,D), double(M,D) or decimal(M,D), M must be >= D (column 'c0').
-            long n = Math.min(nCandidate, m);
-            sb.append(n);
-            sb.append(")");
         }
     }
 }
