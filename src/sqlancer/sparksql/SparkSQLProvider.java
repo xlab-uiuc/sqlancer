@@ -22,16 +22,16 @@ public class SparkSQLProvider extends SQLProviderAdapter<sqlancer.sparksql.Spark
     // TODO: implement
     public enum Action implements AbstractAction<SparkSQLGlobalState> {
 
-        INSERT(SparkSQLInsertGenerator::insert), //
-        CREATE_TABLE((g) -> {
-            // TODO refactor
-            String tableName = DBMSCommon.createTableName(g.getSchema().getDatabaseTables().size());
-            return SparkSQLTableGenerator.generate(g, tableName);
-        }), //
-        ADD_JAR((g) -> {
-            // works for a file test.jar in sqlancer's folder "input"
-            return new SQLQueryAdapter("ADD JAR " + System.getProperty("user.dir") + "/input/test.jar");
-        });
+        INSERT(SparkSQLInsertGenerator::insert);
+//        CREATE_TABLE((g) -> {
+//            // TODO refactor
+//            String tableName = DBMSCommon.createTableName(g.getSchema().getDatabaseTables().size());
+//            return SparkSQLTableGenerator.generate(g, tableName);
+//        }), //
+//        ADD_JAR((g) -> {
+//            // works for a file test.jar in sqlancer's folder "input"
+//            return new SQLQueryAdapter("ADD JAR " + System.getProperty("user.dir") + "/input/test.jar");
+//        });
 
         private final SQLQueryProvider<SparkSQLGlobalState> sqlQueryProvider;
 
@@ -51,8 +51,6 @@ public class SparkSQLProvider extends SQLProviderAdapter<sqlancer.sparksql.Spark
         switch (a) {
         case INSERT:
             return r.getInteger(0, globalState.getOptions().getMaxNumberInserts());
-        case CREATE_TABLE:
-            return r.getInteger(0, 1);
         default:
             throw new AssertionError(a);
         }
@@ -89,7 +87,7 @@ public class SparkSQLProvider extends SQLProviderAdapter<sqlancer.sparksql.Spark
             port = SparkSQLOptions.DEFAULT_PORT;
         }
         String databaseName = globalState.getDatabaseName();
-        globalState.getState().logStatement("DROP DATABASE IF EXISTS " + databaseName);
+        globalState.getState().logStatement("DROP DATABASE IF EXISTS " + databaseName + " CASCADE");
         globalState.getState().logStatement("CREATE DATABASE " + databaseName);
         globalState.getState().logStatement("USE " + databaseName);
         String url = String.format("jdbc:hive2://%s:%d", host, port);
@@ -107,11 +105,13 @@ public class SparkSQLProvider extends SQLProviderAdapter<sqlancer.sparksql.Spark
     }
 
     protected void createTables(SparkSQLGlobalState globalState, int numTables) throws Exception {
+        int i = 0;
         while (globalState.getSchema().getDatabaseTables().size() < numTables) {
             try {
-                String tableName = DBMSCommon.createTableName(globalState.getSchema().getDatabaseTables().size());
+                String tableName = DBMSCommon.createTableName(i);
                 SQLQueryAdapter createTable = SparkSQLTableGenerator.generate(globalState, tableName);
                 globalState.executeStatement(createTable);
+                i++;
             } catch (IgnoreMeException e) {
 
             }

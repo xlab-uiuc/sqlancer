@@ -38,7 +38,6 @@ public class SparkSQLTableGenerator {
         return new SparkSQLTableGenerator(globalState, tableName).create();
     }
 
-    // TODO: implement
     private SQLQueryAdapter create() {
         ExpectedErrors errors = new ExpectedErrors();
 
@@ -75,7 +74,9 @@ public class SparkSQLTableGenerator {
         }
         sb.append(") ");
         generatePartitionBy();
-        appendTableOptions();
+        if (Randomly.getBooleanWithRatherLowProbability()) {
+            appendTableOptions();
+        }
 //            if ((tableHasNullableColumn || setPrimaryKey) && engine == MySQLSchema.MySQLTable.MySQLEngine.CSV) {
 //                if (true) { // TODO
 //                    // results in an error
@@ -122,7 +123,7 @@ public class SparkSQLTableGenerator {
         // TBLPROPERTIES, COMMENT seem unnecessary
         // TODO: implement AS when SELECT is done
         // TODO: implement CLUSTERED/SORTED BY if potentially useful
-        ROW_FORMAT, STORED_AS;
+        ROW_FORMAT;
         // AS;
         public static List<TableOptions> getRandomTableOptions() {
             List<TableOptions> options;
@@ -141,26 +142,18 @@ public class SparkSQLTableGenerator {
     }
 
     private void appendTableOptions() {
-        List<SparkSQLTableGenerator.TableOptions> tableOptions = SparkSQLTableGenerator.TableOptions.getRandomTableOptions();
-        int i = 0;
-        for (SparkSQLTableGenerator.TableOptions o : tableOptions) {
-            switch (o) {
-                case ROW_FORMAT:
-                    appendRowFormat();
-                    break;
-                case STORED_AS:
-                    appendStoredAs();
-                    break;
-                default:
-                    throw new AssertionError(o);
-            }
+        if (Randomly.getBoolean()) {
+            appendRowFormat();
+        } else {
+            appendStoredAs();
         }
     }
 
     private void appendRowFormat() {
         sb.append("ROW FORMAT ");
+        // TODO: find SERDE conditions
         String row_format = Randomly.fromOptions("SERDE 'org.apache.hadoop.hive.serde2.avro.AvroSerDe' ",
-                                                 "DELIMITED FIELDS TERMINATED BY ',' ");
+                                                 "DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE ");
         sb.append(row_format);
     }
 
@@ -202,12 +195,6 @@ public class SparkSQLTableGenerator {
                 break;
             case INT:
                 sb.append(Randomly.fromOptions("TINYINT", "SMALLINT", "INT", "BIGINT"));
-                if (Randomly.getBoolean()) {
-                    sb.append("(");
-                    sb.append(Randomly.getNotCachedInteger(0, 255)); // Display width out of range for column 'c0' (max =
-                    // 255)
-                    sb.append(")");
-                }
                 break;
             case STRING:
                 sb.append(Randomly.fromOptions("STRING"));
