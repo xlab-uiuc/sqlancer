@@ -105,7 +105,7 @@ public class SparkSQLNoRECOracle extends NoRECBase<SparkSQLGlobalState> implemen
         select.setFetchColumns(Collections.singletonList(isTrue));
         select.setFromList(fromTables);
         select.setSelectType(SelectType.ALL);
-        //select.setJoinClauses(joinStatements);
+        // select.setJoinClauses(joinStatements);
         int secondCount = 0;
         unoptimizedQueryString = "SELECT count(*) FROM (" + SparkSQLVisitor.asString(select) + ")";
         if (options.logEachSelect()) {

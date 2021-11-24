@@ -105,13 +105,11 @@ public class SparkSQLProvider extends SQLProviderAdapter<sqlancer.sparksql.Spark
     }
 
     protected void createTables(SparkSQLGlobalState globalState, int numTables) throws Exception {
-        int i = 0;
         while (globalState.getSchema().getDatabaseTables().size() < numTables) {
             try {
-                String tableName = DBMSCommon.createTableName(i);
+                String tableName = DBMSCommon.createTableName(globalState.getSchema().getDatabaseTables().size());
                 SQLQueryAdapter createTable = SparkSQLTableGenerator.generate(globalState, tableName);
                 globalState.executeStatement(createTable);
-                i++;
             } catch (IgnoreMeException e) {
 
             }

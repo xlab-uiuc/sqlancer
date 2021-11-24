@@ -160,8 +160,20 @@ public class SparkSQLSchema extends AbstractSchema<SparkSQLGlobalState, SparkSQL
 
     public static class SparkSQLTable extends AbstractRelationalTable<SparkSQLColumn, TableIndex, SparkSQLGlobalState> {
 
-        public SparkSQLTable(String tableName, List<SparkSQLColumn> columns, boolean isView) {
-            super(tableName, columns, Collections.emptyList(), isView);
+        public enum TableType {
+            STANDARD, EXTERNAL
+        }
+
+        private final TableType tableType;
+
+        public SparkSQLTable(String tableName, List<SparkSQLColumn> columns,
+                             TableType tableType) {
+            super(tableName, columns, null, false);
+            this.tableType = tableType;
+        }
+
+        public TableType getTableType() {
+            return tableType;
         }
 
     }
@@ -175,8 +187,7 @@ public class SparkSQLSchema extends AbstractSchema<SparkSQLGlobalState, SparkSQL
                 continue; // TODO: unexpected?
             }
             List<SparkSQLColumn> databaseColumns = getTableColumns(con, tableName);
-            boolean isView = tableName.startsWith("v");
-            SparkSQLTable t = new SparkSQLTable(tableName, databaseColumns, isView);
+            SparkSQLTable t = new SparkSQLTable(tableName, databaseColumns, null);
             for (SparkSQLColumn c : databaseColumns) {
                 c.setTable(t);
             }
@@ -189,6 +200,13 @@ public class SparkSQLSchema extends AbstractSchema<SparkSQLGlobalState, SparkSQL
     // TODO: implement
     private static List<String> getTableNames(SQLConnection con) throws SQLException {
         List<String> tableNames = new ArrayList<>();
+        try (Statement s = con.createStatement()) {
+            ResultSet tableRs = s.executeQuery("SHOW TABLES");
+            while (tableRs.next()) {
+                String tableName = tableRs.getString(2);
+                tableNames.add(tableName);
+            }
+        }
         return tableNames;
     }
 

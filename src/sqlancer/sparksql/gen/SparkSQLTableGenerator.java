@@ -5,6 +5,7 @@ import sqlancer.Randomly;
 import sqlancer.common.DBMSCommon;
 import sqlancer.common.query.ExpectedErrors;
 import sqlancer.common.query.SQLQueryAdapter;
+import sqlancer.common.schema.AbstractRelationalTable;
 import sqlancer.sparksql.SparkSQLSchema;
 import sqlancer.sparksql.SparkSQLVisitor;
 import sqlancer.sparksql.SparkSQLSchema.SparkSQLDataType;
@@ -25,12 +26,13 @@ public class SparkSQLTableGenerator {
     private final SparkSQLSchema schema;
     private final SparkSQLGlobalState globalState;
     private final List<SparkSQLSchema.SparkSQLColumn> columnsToBeAdded = new ArrayList<>();
+    private final SparkSQLSchema.SparkSQLTable table;
 
     public SparkSQLTableGenerator(SparkSQLGlobalState globalState, String tableName) {
         this.tableName = tableName;
         this.schema = globalState.getSchema();
         this.globalState = globalState;
-        // this.table
+        table = new SparkSQLSchema.SparkSQLTable(tableName, columnsToBeAdded, null);
         // TODO: add errors
     }
 
