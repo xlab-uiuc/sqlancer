@@ -67,7 +67,6 @@ public class SparkSQLSchema extends AbstractSchema<SparkSQLGlobalState, SparkSQL
 //
 //    }
 
-    // TODO: implement
     public static class SparkSQLColumn extends AbstractTableColumn<SparkSQLTable, SparkSQLDataType> {
 
         public SparkSQLColumn(String name, SparkSQLDataType columnType) {
@@ -77,12 +76,22 @@ public class SparkSQLSchema extends AbstractSchema<SparkSQLGlobalState, SparkSQL
     }
 
     public static SparkSQLDataType getColumnType(String typeString) {
+        if (typeString.startsWith("decimal")) {
+            return SparkSQLDataType.DOUBLE;
+        }
         switch (typeString) {
             case "int":
+            case "tinyint":
+            case "bigint":
+            case "smallint":
                 return SparkSQLDataType.INT;
             case "string":
                 return SparkSQLDataType.STRING;
-            // TODO: get the other strings
+            case "float":
+            case "double":
+                return SparkSQLDataType.DOUBLE;
+            case "boolean":
+                return SparkSQLDataType.BOOLEAN;
             default:
                 throw new AssertionError(typeString);
         }
@@ -210,7 +219,6 @@ public class SparkSQLSchema extends AbstractSchema<SparkSQLGlobalState, SparkSQL
         return tableNames;
     }
 
-    // TODO: implement
     private static List<SparkSQLColumn> getTableColumns(SQLConnection con, String tableName) throws SQLException {
         List<SparkSQLColumn> columns = new ArrayList<>();
         try (Statement s = con.createStatement()) {
@@ -219,6 +227,9 @@ public class SparkSQLSchema extends AbstractSchema<SparkSQLGlobalState, SparkSQL
                 while (rs.next()) {
                     String columnName = rs.getString("col_name");
                     String dataType = rs.getString("data_type");
+                    if (columnName.startsWith("#")) {
+                        continue;
+                    }
                     SparkSQLColumn c = new SparkSQLColumn(columnName, getColumnType(dataType));
                     // TODO: do we need to remove #?
                     columns.add(c);

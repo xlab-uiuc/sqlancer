@@ -55,7 +55,7 @@ public class SparkSQLTableGenerator {
         }
         sb.append(" ");
         sb.append(tableName);
-        if (Randomly.getBoolean() && !schema.getDatabaseTables().isEmpty()) {
+        if (Randomly.getBoolean() && !schema.getDatabaseTables().isEmpty() && !external) {
             createLike();
         } else {
             createStandard();
@@ -152,7 +152,7 @@ public class SparkSQLTableGenerator {
     }
 
     private void appendRowFormat() {
-        sb.append("ROW FORMAT ");
+        sb.append(" ROW FORMAT ");
         // TODO: find SERDE conditions
         String row_format = Randomly.fromOptions("SERDE 'org.apache.hadoop.hive.serde2.avro.AvroSerDe' ",
                                                  "DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE ");
@@ -160,7 +160,7 @@ public class SparkSQLTableGenerator {
     }
 
     private void appendStoredAs() {
-        sb.append("STORED AS ");
+        sb.append(" STORED AS ");
         String stored = Randomly.fromOptions("ORC ",
                                              "INPUTFORMAT 'org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat' OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat' ",
                                              "TEXTFILE ",
@@ -169,7 +169,7 @@ public class SparkSQLTableGenerator {
     }
 
     private void appendLocation() {
-        sb.append("LOCATION ");
+        sb.append(" LOCATION ");
         sb.append("'/tmp/table'");
     }
 
