@@ -134,7 +134,7 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
     }
 
     private enum BooleanExpression {
-        NOT, BINARY_LOGICAL_OPERATOR, BINARY_COMPARISON, CAST, LIKE, BETWEEN, IN_OPERATION
+        NOT, BINARY_LOGICAL_OPERATOR, BINARY_COMPARISON, CAST, LIKE, IN_OPERATION
     }
 
     private SparkSQLExpression generateBooleanExpression(int depth) {
@@ -162,10 +162,6 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
             case LIKE:
                 return new SparkSQLLikeOperation(generateExpression(depth + 1, SparkSQLDataType.STRING),
                         generateExpression(depth + 1, SparkSQLDataType.STRING));
-            case BETWEEN:
-                SparkSQLDataType type = getMeaningfulType();
-                return new SparkSQLBetweenOperation(generateExpression(depth + 1, type),
-                        generateExpression(depth + 1, type), generateExpression(depth + 1, type), Randomly.getBoolean());
             default:
                 throw new AssertionError();
         }

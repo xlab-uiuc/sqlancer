@@ -6,7 +6,6 @@ import sqlancer.Randomly;
 import sqlancer.common.visitor.BinaryOperation;
 import sqlancer.common.visitor.ToStringVisitor;
 import sqlancer.sparksql.ast.SparkSQLAggregate;
-import sqlancer.sparksql.ast.SparkSQLBetweenOperation;
 import sqlancer.sparksql.ast.SparkSQLBinaryLogicalOperation;
 import sqlancer.sparksql.ast.SparkSQLCastOperation;
 import sqlancer.sparksql.ast.SparkSQLColumnValue;
@@ -190,18 +189,11 @@ public final class SparkSQLToStringVisitor extends ToStringVisitor<SparkSQLExpre
 
     @Override
     public void visit(SparkSQLCastOperation cast) {
-        if (Randomly.getBoolean()) {
-            sb.append("CAST(");
-            visit(cast.getExpression());
-            sb.append(" AS ");
-            appendType(cast);
-            sb.append(")");
-        } else {
-            sb.append("(");
-            visit(cast.getExpression());
-            sb.append(")::");
-            appendType(cast);
-        }
+        sb.append("CAST(");
+        visit(cast.getExpression());
+        sb.append(" AS ");
+        appendType(cast);
+        sb.append(")");
     }
 
     private void appendType(SparkSQLCastOperation cast) {
@@ -245,29 +237,6 @@ public final class SparkSQLToStringVisitor extends ToStringVisitor<SparkSQLExpre
             sb.append(size.get());
             sb.append(")");
         }
-    }
-
-    @Override
-    public void visit(SparkSQLBetweenOperation op) {
-        sb.append("(");
-        visit(op.getExpr());
-//        if (SparkSQLProvider.generateOnlyKnown && op.getExpr().getExpressionType() == SparkSQLDataType.TEXT
-//                && op.getLeft().getExpressionType() == SparkSQLDataType.TEXT) {
-//            sb.append(" COLLATE \"C\"");
-//        }
-        sb.append(") BETWEEN ");
-        if (op.isSymmetric()) {
-            sb.append("SYMMETRIC ");
-        }
-        sb.append("(");
-        visit(op.getLeft());
-        sb.append(") AND (");
-        visit(op.getRight());
-//        if (SparkSQLProvider.generateOnlyKnown && op.getExpr().getExpressionType() == SparkSQLDataType.TEXT
-//                && op.getRight().getExpressionType() == SparkSQLDataType.TEXT) {
-//            sb.append(" COLLATE \"C\"");
-//        }
-        sb.append(")");
     }
 
     @Override

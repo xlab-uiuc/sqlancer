@@ -5,7 +5,6 @@ import java.util.List;
 import sqlancer.sparksql.SparkSQLSchema.SparkSQLColumn;
 import sqlancer.sparksql.SparkSQLSchema.SparkSQLDataType;
 import sqlancer.sparksql.ast.SparkSQLAggregate;
-import sqlancer.sparksql.ast.SparkSQLBetweenOperation;
 import sqlancer.sparksql.ast.SparkSQLBinaryLogicalOperation;
 import sqlancer.sparksql.ast.SparkSQLCastOperation;
 import sqlancer.sparksql.ast.SparkSQLColumnValue;
@@ -38,8 +37,6 @@ public interface SparkSQLVisitor {
 
     void visit(SparkSQLCastOperation cast);
 
-    void visit(SparkSQLBetweenOperation op);
-
     void visit(SparkSQLInOperation op);
 
     void visit(SparkSQLAggregate op);
@@ -67,8 +64,6 @@ public interface SparkSQLVisitor {
             visit((SparkSQLOrderByTerm) expression);
         } else if (expression instanceof SparkSQLCastOperation) {
             visit((SparkSQLCastOperation) expression);
-        } else if (expression instanceof SparkSQLBetweenOperation) {
-            visit((SparkSQLBetweenOperation) expression);
         } else if (expression instanceof SparkSQLInOperation) {
             visit((SparkSQLInOperation) expression);
         } else if (expression instanceof SparkSQLAggregate) {

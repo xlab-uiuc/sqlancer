@@ -228,10 +228,9 @@ public class SparkSQLSchema extends AbstractSchema<SparkSQLGlobalState, SparkSQL
                     String columnName = rs.getString("col_name");
                     String dataType = rs.getString("data_type");
                     if (columnName.startsWith("#")) {
-                        continue;
+                        break;
                     }
                     SparkSQLColumn c = new SparkSQLColumn(columnName, getColumnType(dataType));
-                    // TODO: do we need to remove #?
                     columns.add(c);
                 }
             }

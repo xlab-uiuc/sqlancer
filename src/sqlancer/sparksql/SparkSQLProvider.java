@@ -22,12 +22,12 @@ public class SparkSQLProvider extends SQLProviderAdapter<sqlancer.sparksql.Spark
     // TODO: implement
     public enum Action implements AbstractAction<SparkSQLGlobalState> {
 
-        INSERT(SparkSQLInsertGenerator::insert);
-//        CREATE_TABLE((g) -> {
-//            // TODO refactor
-//            String tableName = DBMSCommon.createTableName(g.getSchema().getDatabaseTables().size());
-//            return SparkSQLTableGenerator.generate(g, tableName);
-//        }), //
+        INSERT(SparkSQLInsertGenerator::insert),
+        CREATE_TABLE((g) -> {
+            // TODO refactor
+            String tableName = DBMSCommon.createTableName(g.getSchema().getDatabaseTables().size());
+            return SparkSQLTableGenerator.generate(g, tableName);
+        });
 //        ADD_JAR((g) -> {
 //            // works for a file test.jar in sqlancer's folder "input"
 //            return new SQLQueryAdapter("ADD JAR " + System.getProperty("user.dir") + "/input/test.jar");
@@ -45,12 +45,13 @@ public class SparkSQLProvider extends SQLProviderAdapter<sqlancer.sparksql.Spark
         }
     }
 
-    // TODO: implement
     private static int mapActions(SparkSQLGlobalState globalState, Action a) {
         Randomly r = globalState.getRandomly();
         switch (a) {
         case INSERT:
             return r.getInteger(0, globalState.getOptions().getMaxNumberInserts());
+        case CREATE_TABLE:
+            return r.getInteger(0, 1);
         default:
             throw new AssertionError(a);
         }
@@ -124,7 +125,6 @@ public class SparkSQLProvider extends SQLProviderAdapter<sqlancer.sparksql.Spark
             }
         });
         se.executeStatements();
-        globalState.executeStatement(new SQLQueryAdapter("COMMIT", true));
         globalState.executeStatement(new SQLQueryAdapter("SET SESSION statement_timeout = 5000;\n"));
     }
 

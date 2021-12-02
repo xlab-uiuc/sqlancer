@@ -1,6 +1,7 @@
 package sqlancer.sparksql.ast;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -1039,10 +1040,10 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
                 return cast(SparkSQLDataType.BOOLEAN).isEquals(rightVal.cast(SparkSQLDataType.BOOLEAN));
             } else if (rightVal.isString()) {
                 return SparkSQLConstant.createBooleanConstant(value.contentEquals(rightVal.asString()));
-            } else if (rightVal.isVarChar()) {
-                return SparkSQLConstant.createBooleanConstant(value.contentEquals(rightVal.asVarChar()));
-            } else if (rightVal.isChar()) {
-                return SparkSQLConstant.createBooleanConstant(value.contentEquals(rightVal.asChar()));
+//            } else if (rightVal.isVarChar()) {
+//                return SparkSQLConstant.createBooleanConstant(value.contentEquals(rightVal.asVarChar()));
+//            } else if (rightVal.isChar()) {
+//                return SparkSQLConstant.createBooleanConstant(value.contentEquals(rightVal.asChar()));
             } else {
                 throw new AssertionError(rightVal);
             }
@@ -1070,10 +1071,10 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
                 return cast(SparkSQLDataType.BOOLEAN).isLessThan(rightVal.cast(SparkSQLDataType.BOOLEAN));
             } else if (rightVal.isString()) {
                 return SparkSQLConstant.createBooleanConstant(value.compareTo(rightVal.asString()) < 0);
-            } else if (rightVal.isVarChar()) {
-                return SparkSQLConstant.createBooleanConstant(value.compareTo(rightVal.asVarChar()) < 0);
-            } else if (rightVal.isChar()) {
-                return SparkSQLConstant.createBooleanConstant(value.compareTo(rightVal.asChar()) < 0);
+//            } else if (rightVal.isVarChar()) {
+//                return SparkSQLConstant.createBooleanConstant(value.compareTo(rightVal.asVarChar()) < 0);
+//            } else if (rightVal.isChar()) {
+//                return SparkSQLConstant.createBooleanConstant(value.compareTo(rightVal.asChar()) < 0);
             } else {
                 throw new AssertionError(rightVal);
             }
@@ -1156,8 +1157,6 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
                 } catch (NumberFormatException e) {
                     return SparkSQLConstant.createDoubleConstant(-1.0);
                 }
-            case STRING:
-                return this;
 //            case VARCHAR:
 //                return SparkSQLConstant.createVarCharConstant(s, value.length());
 //            case CHAR:
@@ -1697,10 +1696,10 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
                 return SparkSQLConstant.createNullConstant();
             } else if (rightVal.isString()) {
                 return isLessThan(rightVal.cast(SparkSQLDataType.BOOLEAN));
-            } else if (rightVal.isVarChar()) {
-                return isLessThan(rightVal.cast(SparkSQLDataType.BOOLEAN));
-            } else if (rightVal.isChar()) {
-                return isLessThan(rightVal.cast(SparkSQLDataType.BOOLEAN));
+//            } else if (rightVal.isVarChar()) {
+//                return isLessThan(rightVal.cast(SparkSQLDataType.BOOLEAN));
+//            } else if (rightVal.isChar()) {
+//                return isLessThan(rightVal.cast(SparkSQLDataType.BOOLEAN));
             } else {
                 assert rightVal.isBoolean();
                 return SparkSQLConstant.createBooleanConstant((value ? 1 : 0) < (rightVal.asBoolean() ? 1 : 0));
@@ -2305,7 +2304,7 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
     }
 
     public static SparkSQLConstant createDecimalConstant(BigDecimal bigDecimal) {
-        return new SparkSQLDecimalConstant(bigDecimal);
+        return new SparkSQLDecimalConstant(bigDecimal.round(MathContext.DECIMAL128));
     }
 
     public static SparkSQLConstant createStringConstant(String string) {

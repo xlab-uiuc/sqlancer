@@ -5,18 +5,14 @@ import sqlancer.Randomly;
 import sqlancer.common.DBMSCommon;
 import sqlancer.common.query.ExpectedErrors;
 import sqlancer.common.query.SQLQueryAdapter;
-import sqlancer.common.schema.AbstractRelationalTable;
 import sqlancer.sparksql.SparkSQLSchema;
-import sqlancer.sparksql.SparkSQLVisitor;
 import sqlancer.sparksql.SparkSQLSchema.SparkSQLDataType;
 import sqlancer.sparksql.SparkSQLProvider.SparkSQLGlobalState;
-import sqlancer.sparksql.ast.SparkSQLExpression;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class SparkSQLTableGenerator {
     private final StringBuilder sb = new StringBuilder();
@@ -61,7 +57,7 @@ public class SparkSQLTableGenerator {
             createStandard();
         }
         if (external) {
-            appendLocation();
+            appendLocation(tableName);
         }
         return new SQLQueryAdapter(sb.toString(), errors, true);
     }
@@ -168,9 +164,13 @@ public class SparkSQLTableGenerator {
         sb.append(stored);
     }
 
-    private void appendLocation() {
+    private void appendLocation(String tableName) {
         sb.append(" LOCATION ");
-        sb.append("'/tmp/table'");
+        sb.append("'/tmp/");
+        sb.append(globalState.getDatabaseName());
+        sb.append("_");
+        sb.append(tableName);
+        sb.append("'");
     }
 
     private void generatePartitionBy() {

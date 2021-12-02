@@ -22,14 +22,14 @@ public class SparkSQLInsertGenerator {
         SparkSQLTable table = globalState.getSchema().getRandomTable();
         ExpectedErrors errors = new ExpectedErrors();
         StringBuilder sb = new StringBuilder();
-        List<SparkSQLColumn> columns = table.getRandomNonEmptyColumnSubset();
+        List<SparkSQLColumn> columns = table.getColumns();
         sb.append("INSERT INTO ");
-        sb.append(table.getName());
         if (Randomly.getBooleanWithRatherLowProbability()) {
-            sb.append("TABLE");
-            sb.append(globalState.getSchema().getRandomTable().getName());
-            return new SQLQueryAdapter(sb.toString(), errors);
+            sb.append("TABLE ");
         }
+        sb.append(globalState.getDatabaseName());
+        sb.append(".");
+        sb.append(table.getName());
         // TODO: FROM SELECT pattern
         // TODO: implement PARTITION
         // if (Randomly.getBooleanWithRatherLowProbability()) {
@@ -45,10 +45,13 @@ public class SparkSQLInsertGenerator {
         }
         for (int row = 0; row < nrRows; row++) {
             if (row != 0) {
-                sb.append(", ");
+                sb.append(", \n");
             }
             insertRow(globalState, sb, columns);
         }
+        errors.add("string to float");
+        errors.add("string to double");
+        errors.add("causes overflow");
         return new SQLQueryAdapter(sb.toString(), errors);
     }
 
