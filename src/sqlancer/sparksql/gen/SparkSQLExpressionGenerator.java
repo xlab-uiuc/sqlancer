@@ -117,6 +117,7 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
                 case DECIMAL:
                 case FLOAT:
                 case DOUBLE:
+                    return generateConstant(r, dataType);
                 case STRING:
                     return generateStringExpression(depth);
 //                case BINARY:
@@ -290,7 +291,6 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
         }
         switch (type) {
             case INT:
-                // TODO: why does SparkSQL have createTextConstant here?
                 return SparkSQLConstant.createIntConstant(r.getInteger());
             case BOOLEAN:
                 return SparkSQLConstant.createBooleanConstant(Randomly.getBoolean());

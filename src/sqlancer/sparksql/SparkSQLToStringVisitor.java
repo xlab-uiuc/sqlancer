@@ -63,9 +63,6 @@ public final class SparkSQLToStringVisitor extends ToStringVisitor<SparkSQLExpre
 
     @Override
     public void visit(SparkSQLFromTable from) {
-        if (from.isOnly()) {
-            sb.append("ONLY ");
-        }
         sb.append(from.getTable().getName());
         if (!from.isOnly() && Randomly.getBoolean()) {
             sb.append("*");
@@ -202,7 +199,7 @@ public final class SparkSQLToStringVisitor extends ToStringVisitor<SparkSQLExpre
             case BOOLEAN:
                 sb.append("BOOLEAN");
                 break;
-            case INT: // TODO support also other int types
+            case INT:
                 sb.append("INT");
                 break;
 //            case TEXT:

@@ -47,13 +47,13 @@ public class SparkSQLBinaryArithmeticOperation extends BinaryOperatorNode<SparkS
                 return applyBitOperation(left, right, (l, r) -> r == 0 ? -1 : l % r);
 
             }
-        },
-        EXPONENTIATION("^") {
-            @Override
-            public SparkSQLConstant apply(SparkSQLConstant left, SparkSQLConstant right) {
-                return null;
-            }
         };
+//        EXPONENTIATION("^") {
+//            @Override
+//            public SparkSQLConstant apply(SparkSQLConstant left, SparkSQLConstant right) {
+//                return null;
+//            }
+//        };
 
         private String textRepresentation;
 

@@ -49,9 +49,9 @@ public class SparkSQLInsertGenerator {
             }
             insertRow(globalState, sb, columns);
         }
-        errors.add("string to float");
-        errors.add("string to double");
         errors.add("causes overflow");
+        errors.add("Dynamic partition strict mode");
+        errors.add("Decimal(expanded");
         return new SQLQueryAdapter(sb.toString(), errors);
     }
 

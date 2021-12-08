@@ -1131,7 +1131,7 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
                 try {
                     return SparkSQLConstant.createIntConstant(Integer.parseInt(s));
                 } catch (NumberFormatException e) {
-                    return SparkSQLConstant.createIntConstant(-1);
+                    return null;
                 }
 //            case LONG:
 //                try {
@@ -1143,19 +1143,19 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
                 try {
                     return SparkSQLConstant.createFloatConstant(Float.parseFloat(s));
                 } catch (NumberFormatException e) {
-                    return SparkSQLConstant.createFloatConstant(-1);
+                    return null;
                 }
             case DOUBLE:
                 try {
                     return SparkSQLConstant.createDoubleConstant(Double.parseDouble(s));
                 } catch (NumberFormatException e) {
-                    return SparkSQLConstant.createDoubleConstant(-1.0);
+                    return null;
                 }
             case DECIMAL:
                 try {
                     return SparkSQLConstant.createDecimalConstant(new BigDecimal(s));
                 } catch (NumberFormatException e) {
-                    return SparkSQLConstant.createDoubleConstant(-1.0);
+                    return null;
                 }
 //            case VARCHAR:
 //                return SparkSQLConstant.createVarCharConstant(s, value.length());

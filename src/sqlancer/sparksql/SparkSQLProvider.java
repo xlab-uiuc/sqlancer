@@ -125,7 +125,6 @@ public class SparkSQLProvider extends SQLProviderAdapter<sqlancer.sparksql.Spark
             }
         });
         se.executeStatements();
-        globalState.executeStatement(new SQLQueryAdapter("SET SESSION statement_timeout = 5000;\n"));
     }
 
     // TODO: implement
