@@ -151,7 +151,7 @@ public class SparkSQLTableGenerator {
         sb.append(" ROW FORMAT ");
         // TODO: find SERDE conditions
         String row_format = Randomly.fromOptions("SERDE 'org.apache.hadoop.hive.serde2.avro.AvroSerDe' ",
-                                                 "DELIMITED FIELDS TERMINATED BY ',' STORED AS TEXTFILE ");
+                                                 "DELIMITED FIELDS TERMINATED BY \",\" STORED AS TEXTFILE ");
         sb.append(row_format);
     }
 
@@ -166,11 +166,11 @@ public class SparkSQLTableGenerator {
 
     private void appendLocation(String tableName) {
         sb.append(" LOCATION ");
-        sb.append("'/tmp/");
+        sb.append("\"/tmp/");
         sb.append(globalState.getDatabaseName());
         sb.append("_");
         sb.append(tableName);
-        sb.append("'");
+        sb.append("\"");
     }
 
     private void generatePartitionBy() {

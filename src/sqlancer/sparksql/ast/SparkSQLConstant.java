@@ -1015,7 +1015,7 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
 
         @Override
         public String getTextRepresentation() {
-            return String.format("'%s'", value.replace("'", "''"));
+            return String.format("\"%s\"", value.replace("'", "''"));
         }
 
         @Override
@@ -1131,6 +1131,7 @@ public abstract class SparkSQLConstant implements SparkSQLExpression {
                 try {
                     return SparkSQLConstant.createIntConstant(Integer.parseInt(s));
                 } catch (NumberFormatException e) {
+                    // TODO: verify this is correct casting semantics for numerics
                     return null;
                 }
 //            case LONG:

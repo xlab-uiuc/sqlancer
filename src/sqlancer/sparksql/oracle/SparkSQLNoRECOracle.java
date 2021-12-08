@@ -49,7 +49,7 @@ public class SparkSQLNoRECOracle extends NoRECBase<SparkSQLGlobalState> implemen
         List<SparkSQLTable> tables = randomTables.getTables();
 
         //List<SparkSQLJoin> joinStatements = getJoinStatements(state, columns, tables);
-        List<SparkSQLExpression> fromTables = tables.stream().map(t -> new SparkSQLFromTable(t, Randomly.getBoolean()))
+        List<SparkSQLExpression> fromTables = tables.stream().map(t -> new SparkSQLFromTable(t))
                 .collect(Collectors.toList());
         int secondCount = getUnoptimizedQueryCount(fromTables, randomWhereCondition);
         int firstCount = getOptimizedQueryCount(fromTables, columns, randomWhereCondition);

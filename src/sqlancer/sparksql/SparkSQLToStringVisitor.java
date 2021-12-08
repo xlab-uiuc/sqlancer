@@ -64,9 +64,6 @@ public final class SparkSQLToStringVisitor extends ToStringVisitor<SparkSQLExpre
     @Override
     public void visit(SparkSQLFromTable from) {
         sb.append(from.getTable().getName());
-        if (!from.isOnly() && Randomly.getBoolean()) {
-            sb.append("*");
-        }
     }
 
     @Override

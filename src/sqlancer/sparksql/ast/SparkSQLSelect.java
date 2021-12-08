@@ -16,19 +16,14 @@ public class SparkSQLSelect extends SelectBase<SparkSQLExpression> implements Sp
 
     public static class SparkSQLFromTable implements SparkSQLExpression {
         private final SparkSQLTable t;
-        private final boolean only;
 
-        public SparkSQLFromTable(SparkSQLTable t, boolean only) {
+        // TODO enhance FROM modifier
+        public SparkSQLFromTable(SparkSQLTable t) {
             this.t = t;
-            this.only = only;
         }
 
         public SparkSQLTable getTable() {
             return t;
-        }
-
-        public boolean isOnly() {
-            return only;
         }
 
         @Override
