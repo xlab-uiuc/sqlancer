@@ -3,6 +3,7 @@ package sqlancer.sparksql.gen;
 import sqlancer.IgnoreMeException;
 import sqlancer.Randomly;
 import sqlancer.common.gen.ExpressionGenerator;
+import sqlancer.sparksql.ast.SparkSQLColumnValue;
 import sqlancer.sparksql.SparkSQLCompoundDataType;
 import sqlancer.sparksql.SparkSQLSchema;
 import sqlancer.sparksql.ast.SparkSQLBinaryComparisonOperation;
@@ -12,6 +13,8 @@ import sqlancer.sparksql.ast.*;
 import sqlancer.sparksql.ast.SparkSQLBinaryArithmeticOperation;
 import sqlancer.sparksql.ast.SparkSQLCastOperation;
 import sqlancer.sparksql.ast.SparkSQLPrefixOperation;
+import sqlancer.sparksql.ast.SparkSQLOrderByTerm.SparkSQLOrder;
+import sqlancer.sparksql.ast.SparkSQLOrderByTerm.SparkSQLNullsOrder;
 import sqlancer.sparksql.SparkSQLProvider.SparkSQLGlobalState;
 import sqlancer.sparksql.SparkSQLSchema.SparkSQLDataType;
 import sqlancer.sparksql.SparkSQLSchema.SparkSQLColumn;
@@ -29,6 +32,7 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
     private final Randomly r;
     private final int maxDepth;
     private SparkSQLRowValue rw;
+    private boolean expectedResult;
     private List<SparkSQLColumn> columns;
 
     public SparkSQLExpressionGenerator(SparkSQLGlobalState state) {
@@ -46,10 +50,10 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
         return this;
     }
 
-//    public SparkSQLExpressionGenerator setRowValue(SparkSQLSchema.SparkSQLRowValue rw) {
-//        this.rw = rw;
-//        return this;
-//    }
+    public SparkSQLExpressionGenerator setRowValue(SparkSQLRowValue rw) {
+        this.rw = rw;
+        return this;
+    }
 
     public SparkSQLExpression generateExpression(int depth) {
         return generateExpression(depth, SparkSQLDataType.getRandomType());
@@ -117,6 +121,7 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
                 case DECIMAL:
                 case FLOAT:
                 case DOUBLE:
+                    // TODO generate double expressions
                     return generateConstant(r, dataType);
                 case STRING:
                     return generateStringExpression(depth);
@@ -132,6 +137,15 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
                     throw new AssertionError(dataType);
             }
         }
+    }
+
+    public List<SparkSQLExpression> generateOrderBy() {
+        List<SparkSQLExpression> orderBys = new ArrayList<>();
+        for (int i = 0; i < Randomly.smallNumber(); i++) {
+            orderBys.add(new SparkSQLOrderByTerm(SparkSQLColumnValue.create(Randomly.fromList(columns), null),
+                    SparkSQLOrder.getRandomOrder(), SparkSQLNullsOrder.getRandomOrder()));
+        }
+        return orderBys;
     }
 
     private enum BooleanExpression {
@@ -322,6 +336,17 @@ public class SparkSQLExpressionGenerator implements ExpressionGenerator<SparkSQL
         } else {
             return columns.stream().filter(c -> c.getType() == type).collect(Collectors.toList());
         }
+    }
+
+    public SparkSQLExpression generateExpressionWithExpectedResult(SparkSQLDataType type) {
+        this.expectedResult = true;
+        SparkSQLExpressionGenerator gen = new SparkSQLExpressionGenerator(state).setColumns(columns)
+                .setRowValue(rw);
+        SparkSQLExpression expr;
+        do {
+            expr = gen.generateExpression(type);
+        } while (expr.getExpectedValue() == null);
+        return expr;
     }
 
     @Override

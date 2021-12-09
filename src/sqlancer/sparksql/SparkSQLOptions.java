@@ -5,6 +5,7 @@ import com.beust.jcommander.Parameters;
 import sqlancer.DBMSSpecificOptions;
 import sqlancer.OracleFactory;
 import sqlancer.common.oracle.TestOracle;
+import sqlancer.sparksql.oracle.SparkSQLPivotedQuerySynthesisOracle;
 import sqlancer.sparksql.SparkSQLProvider.SparkSQLGlobalState;
 import sqlancer.sparksql.SparkSQLOptions.SparkSQLOracleFactory;
 import sqlancer.sparksql.oracle.SparkSQLNoRECOracle;
@@ -30,6 +31,17 @@ public class SparkSQLOptions implements DBMSSpecificOptions<SparkSQLOracleFactor
                 return new SparkSQLNoRECOracle(globalState);
             }
         },
+        PQS {
+            @Override
+            public TestOracle create(SparkSQLGlobalState globalState) throws SQLException {
+                return new SparkSQLPivotedQuerySynthesisOracle(globalState);
+            }
+
+            @Override
+            public boolean requiresAllTablesToContainRows() {
+                return true;
+            }
+        }
     }
 
     @Override

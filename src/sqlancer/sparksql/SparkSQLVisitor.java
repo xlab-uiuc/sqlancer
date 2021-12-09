@@ -85,11 +85,11 @@ public interface SparkSQLVisitor {
         return visitor.get();
     }
 
-//    static String asExpectedValues(SparkSQLExpression expr) {
-//        SparkSQLExpectedValueVisitor v = new SparkSQLExpectedValueVisitor();
-//        v.visit(expr);
-//        return v.get();
-//    }
+    static String asExpectedValues(SparkSQLExpression expr) {
+        SparkSQLExpectedValueVisitor v = new SparkSQLExpectedValueVisitor();
+        v.visit(expr);
+        return v.get();
+    }
 
     static String getExpressionAsString(SparkSQLGlobalState globalState, SparkSQLDataType type,
                                         List<SparkSQLColumn> columns) {
