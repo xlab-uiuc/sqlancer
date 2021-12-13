@@ -8,6 +8,7 @@ import sqlancer.common.oracle.TestOracle;
 import sqlancer.sparksql.oracle.SparkSQLPivotedQuerySynthesisOracle;
 import sqlancer.sparksql.SparkSQLProvider.SparkSQLGlobalState;
 import sqlancer.sparksql.SparkSQLOptions.SparkSQLOracleFactory;
+import sqlancer.sparksql.oracle.SparkSQLDiffTOracle;
 import sqlancer.sparksql.oracle.SparkSQLNoRECOracle;
 
 import java.sql.SQLException;
@@ -35,6 +36,18 @@ public class SparkSQLOptions implements DBMSSpecificOptions<SparkSQLOracleFactor
             @Override
             public TestOracle create(SparkSQLGlobalState globalState) throws SQLException {
                 return new SparkSQLPivotedQuerySynthesisOracle(globalState);
+            }
+
+            @Override
+            public boolean requiresAllTablesToContainRows() {
+                return true;
+            }
+        },
+        DIFFT {
+            @Override
+            public TestOracle create(SparkSQLGlobalState globalState) throws SQLException {
+                System.out.println("\nCreating the test\n");
+                return new SparkSQLDiffTOracle(globalState);
             }
 
             @Override

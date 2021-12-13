@@ -18,11 +18,12 @@ public abstract class DiffTBase<S extends SQLGlobalState<?, ?>> implements TestO
 
     public static final class ResultLogger {
 
-        private final File RES_DIRECTORY = new File("res");
+        private static final File RES_DIRECTORY = new File("res");
         private File curFile;
         public FileWriter currentFileWriter;
 
         public ResultLogger(String databaseName) {
+            // System.out.println("\nInitializing the result logger\n");
             File dir = new File(RES_DIRECTORY, databaseName);
             if (dir.exists() && !dir.isDirectory()) {
                 throw new AssertionError(dir);
@@ -69,6 +70,16 @@ public abstract class DiffTBase<S extends SQLGlobalState<?, ?>> implements TestO
             }
         }
 
+        public void write(int count) {
+            printCount(getFileWriter(), count);
+            try {
+                currentFileWriter.flush();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         private void printResults(FileWriter writer, SQLancerResultSet rs) {
             StringBuilder sb = new StringBuilder();
             int i = 1;
@@ -84,6 +95,14 @@ public abstract class DiffTBase<S extends SQLGlobalState<?, ?>> implements TestO
             
             try {
                 writer.write(sb.toString());
+            } catch (IOException e) {
+                throw new AssertionError(e);
+            }
+        }
+
+        private void printCount(FileWriter writer, int count) {
+            try {
+                writer.write(String.valueOf(count) + "\n");
             } catch (IOException e) {
                 throw new AssertionError(e);
             }

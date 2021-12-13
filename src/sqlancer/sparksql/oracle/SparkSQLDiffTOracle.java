@@ -48,23 +48,8 @@ public class SparkSQLDiffTOracle extends DiffTBase<SparkSQLGlobalState> implemen
         List<SparkSQLExpression> fromTables = tables.stream().map(t -> new SparkSQLFromTable(t))
                 .collect(Collectors.toList());
 
-        // TODO: implement
-        // need a result logger? etend the state logger?
-        int secondCount = getQueryCount(fromTables, columns, randomWhereCondition);
-        int firstCount = getQueryCount(fromTables, columns, randomWhereCondition);
-        if (firstCount == -1 || secondCount == -1) {
-            throw new IgnoreMeException();
-        }
-        if (firstCount != secondCount) {
-            String queryFormatString = "-- %s;\n-- count: %d";
-            String firstQueryStringWithCount = String.format(queryFormatString, queryString, firstCount);
-            String secondQueryStringWithCount = String.format(queryFormatString, queryString, secondCount);
-            state.getState().getLocalState()
-                    .log(String.format("%s\n%s", firstQueryStringWithCount, secondQueryStringWithCount));
-            String assertionMessage = String.format("the counts mismatch (%d and %d)!\n%s\n%s", firstCount, secondCount,
-                    firstQueryStringWithCount, secondQueryStringWithCount);
-            throw new AssertionError(assertionMessage);
-        }
+        int count = getQueryCount(fromTables, columns, randomWhereCondition);
+        rsLogger.write(count);
     }
 
 //    public static List<SparkSQLJoin> getJoinStatements(SparkSQLGlobalState globalState, List<SparkSQLColumn> columns,
@@ -114,9 +99,6 @@ public class SparkSQLDiffTOracle extends DiffTBase<SparkSQLGlobalState> implemen
             try (ResultSet rs = stat.executeQuery(queryString)) {
                 while (rs.next()) {
                     count++;
-                }
-                if (options.logEachSelect()) {
-                    rsLogger.write(new SQLancerResultSet(rs));
                 }
             }
         } catch (SQLException e) {
