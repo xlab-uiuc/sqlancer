@@ -49,7 +49,7 @@ public class SparkSQLDiffTOracle extends DiffTBase<SparkSQLGlobalState> implemen
                 .collect(Collectors.toList());
 
         int count = getQueryCount(fromTables, columns, randomWhereCondition);
-        rsLogger.write(count);
+        rsLogger.write(queryString + " -> " + String.valueOf(count));
     }
 
 //    public static List<SparkSQLJoin> getJoinStatements(SparkSQLGlobalState globalState, List<SparkSQLColumn> columns,

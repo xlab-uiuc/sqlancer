@@ -46,13 +46,7 @@ public class SparkSQLOptions implements DBMSSpecificOptions<SparkSQLOracleFactor
         DIFFT {
             @Override
             public TestOracle create(SparkSQLGlobalState globalState) throws SQLException {
-                System.out.println("\nCreating the test\n");
                 return new SparkSQLDiffTOracle(globalState);
-            }
-
-            @Override
-            public boolean requiresAllTablesToContainRows() {
-                return true;
             }
         }
     }
