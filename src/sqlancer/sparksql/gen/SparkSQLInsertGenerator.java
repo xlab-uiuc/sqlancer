@@ -1,6 +1,5 @@
 package sqlancer.sparksql.gen;
 
-import com.sun.org.apache.xpath.internal.operations.String;
 import sqlancer.Randomly;
 import sqlancer.common.query.ExpectedErrors;
 import sqlancer.common.query.SQLQueryAdapter;
@@ -11,7 +10,6 @@ import sqlancer.sparksql.SparkSQLSchema.SparkSQLTable;
 import sqlancer.sparksql.ast.SparkSQLExpression;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class SparkSQLInsertGenerator {
 
@@ -49,9 +47,13 @@ public class SparkSQLInsertGenerator {
             }
             insertRow(globalState, sb, columns);
         }
+        errors.add("string to double");
+        errors.add("string to decimal");
+        errors.add("string to float");
         errors.add("causes overflow");
         errors.add("Dynamic partition strict mode");
         errors.add("Decimal(expanded");
+        errors.add("mismatched input");
         return new SQLQueryAdapter(sb.toString(), errors);
     }
 

@@ -11,7 +11,7 @@ public class SparkSQLPostfixOperation implements SparkSQLExpression {
     private final String operatorTextRepresentation;
 
     public enum PostfixOperator implements Operator {
-        IS_NULL("IS NULL", "ISNULL") {
+        IS_NULL("IS NULL") {
             @Override
             public SparkSQLConstant apply(SparkSQLConstant expectedValue) {
                 return SparkSQLConstant.createBooleanConstant(expectedValue.isNull());
@@ -35,7 +35,7 @@ public class SparkSQLPostfixOperation implements SparkSQLExpression {
             }
         },
 
-        IS_NOT_NULL("IS NOT NULL", "NOTNULL") {
+        IS_NOT_NULL("IS NOT NULL") {
 
             @Override
             public SparkSQLConstant apply(SparkSQLConstant expectedValue) {

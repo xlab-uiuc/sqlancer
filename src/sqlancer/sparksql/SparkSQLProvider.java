@@ -57,7 +57,6 @@ public class SparkSQLProvider extends SQLProviderAdapter<sqlancer.sparksql.Spark
         }
     }
 
-    // TODO: implement
     public static class SparkSQLGlobalState extends SQLGlobalState<SparkSQLOptions, SparkSQLSchema> {
 
         @Override
@@ -67,14 +66,12 @@ public class SparkSQLProvider extends SQLProviderAdapter<sqlancer.sparksql.Spark
 
     }
 
-    // TODO: implement
     @Override
     public void generateDatabase(SparkSQLGlobalState globalState) throws Exception {
         createTables(globalState, Randomly.fromOptions(4, 5, 6));
         prepareTables(globalState);
     }
 
-    // TODO: implement
     @Override
     public SQLConnection createDatabase(SparkSQLGlobalState globalState) throws SQLException {
         String username = globalState.getOptions().getUserName();
