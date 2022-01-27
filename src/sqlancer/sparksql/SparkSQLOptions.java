@@ -24,7 +24,6 @@ public class SparkSQLOptions implements DBMSSpecificOptions<SparkSQLOracleFactor
     @Parameter(names = "--oracle")
     public List<SparkSQLOracleFactory> oracles = Arrays.asList(SparkSQLOracleFactory.NOREC);
 
-    // TODO: add all test oracles here
     public enum SparkSQLOracleFactory implements OracleFactory<SparkSQLGlobalState> {
         NOREC {
             @Override
@@ -55,5 +54,8 @@ public class SparkSQLOptions implements DBMSSpecificOptions<SparkSQLOracleFactor
     public List<SparkSQLOracleFactory> getTestOracleFactory() {
         return oracles;
     }
+
+    @Parameter(names = "--store-type", arity = 1)
+    public int stored_idx = 0;
 
 }

@@ -11,3 +11,6 @@ target/
 *.iml
 databases/database*.log
 databases/*.db
+
+derby.log
+metastore_db/
