@@ -23,5 +23,5 @@ for i in range(NUM_SPARK):
 
     xmlstr = minidom.parseString(ET.tostring(c)).toprettyxml(indent="   ")
     xmlstr = xmlstr[:22] + '\n<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>' + xmlstr[22:]
-    with open('../spark'+str(i)+'/hive-site.xml', 'w') as f:
+    with open('../spark'+str(i)+'/conf/hive-site.xml', 'w') as f:
         f.write(xmlstr)
