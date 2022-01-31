@@ -149,16 +149,20 @@ public class SparkSQLTableGenerator {
 
     private void appendRowFormat() {
         sb.append(" ROW FORMAT ");
-        // TODO: find SERDE conditions
-        String row_format = Randomly.fromOptions("SERDE \"org.apache.hadoop.hive.serde2.avro.AvroSerDe\" ",
-                                                 "DELIMITED FIELDS TERMINATED BY \",\" STORED AS TEXTFILE ");
+        String row_format;
+        if (Randomly.getBoolean()) {
+            row_format = "SERDE \"org.apache.hadoop.hive.serde2.avro.AvroSerDe\" " +
+                    "STORED AS INPUTFORMAT \"org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat\" " +
+                    "OUTPUTFORMAT \"org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat\" ";
+        } else {
+            row_format = "DELIMITED FIELDS TERMINATED BY \",\" STORED AS TEXTFILE ";
+        }
         sb.append(row_format);
     }
 
     private void appendStoredAs() {
         sb.append(" STORED AS ");
         String[] options = {"ORC ",
-                            "INPUTFORMAT \"org.apache.hadoop.hive.ql.io.avro.AvroContainerInputFormat\" OUTPUTFORMAT \"org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat\" ",
                             "TEXTFILE ",
                             "PARQUET "};
         sb.append(options[globalState.getDbmsSpecificOptions().stored_idx]);
