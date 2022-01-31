@@ -1,6 +1,7 @@
 #!/usr/bin/zsh
 clear
 mvn package -DskipTests
+python3 hive_conf.py
 cd target
 for i in {1..100}
 do
